@@ -23,6 +23,13 @@ open class StatisticsOrdered(private val arena: IArena, orderBy: String) {
         return StringParser()
     }
 
+    /**
+     * @return the arena these statistics were created for.
+     */
+    open fun getArena(): IArena {
+        return arena
+    }
+
     open inner class StringParser {
         @JvmField var index: Int = 0
 
