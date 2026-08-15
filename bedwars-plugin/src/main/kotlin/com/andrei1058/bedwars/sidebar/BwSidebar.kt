@@ -54,12 +54,13 @@ open class BwSidebar(private val player: Player) : ISidebar {
 
     override fun setContent(titleArray: MutableList<String>, lineArray: MutableList<String>, arena: IArena?) {
         this.arena = arena
-        val title = this.normalizeTitle(titleArray)
-        val lines = this.normalizeLines(lineArray)
-        if (null == arena) {
-            // clean up
+        // dropped before the lines are parsed with it.
+        val statisticsFromAnotherArena: Boolean = null != topStatistics && topStatistics.getArena() !== arena
+        if (null == arena || statisticsFromAnotherArena) {
             setTopStatistics(null)
         }
+        val title = this.normalizeTitle(titleArray)
+        val lines = this.normalizeLines(lineArray)
         val placeholders = this.getPlaceholders(this.getPlayer())
         placeholders.addAll(this.persistentProviders)
         // if it is the first time setting content we create the handle
