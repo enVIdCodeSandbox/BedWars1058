@@ -375,6 +375,11 @@ interface IArena {
      */
     fun getTeam(name: String): ITeam?
 
+    /**
+     * The countdown task of this arena.
+     * It only exists while the arena is in the {@link GameState#starting} state, in every other state (for example
+     * while still waiting for players) this returns null. Always check for null before using it.
+     */
     fun getStartingTask(): StartingTask?
 
     fun getPlayingTask(): PlayingTask?
