@@ -1608,6 +1608,10 @@ open class Arena : IArena {
      * Make sure the player is in this arena first.
      */
     override fun getTeam(p: Player): ITeam? {
+        if (null == getTeams()) {
+            // arena data already destroyed
+            return null
+        }
         for (t in getTeams()!!) {
             if (t.isMember(p)) {
                 return t
@@ -1621,6 +1625,10 @@ open class Arena : IArena {
      * Check the team where he played before leaving or losing.
      */
     override fun getExTeam(p: UUID): ITeam? {
+        if (null == getTeams()) {
+            // arena data already destroyed
+            return null
+        }
         for (t in getTeams()!!) {
             if (t.wasMember(p)) {
                 return t
