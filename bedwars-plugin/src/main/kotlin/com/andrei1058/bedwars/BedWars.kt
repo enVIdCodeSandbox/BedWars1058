@@ -81,6 +81,7 @@ import com.andrei1058.bedwars.support.vault.*
 import com.andrei1058.bedwars.support.version.ServerVersionResolver
 import com.andrei1058.bedwars.support.vipfeatures.VipFeatures
 import com.andrei1058.bedwars.support.vipfeatures.VipListeners
+import com.andrei1058.bedwars.teamselector.TeamSelectorModule
 import com.andrei1058.vipfeatures.api.IVipFeatures
 import com.andrei1058.vipfeatures.api.MiniGameAlreadyRegistered
 import java.io.File
@@ -343,6 +344,8 @@ open class BedWars : JavaPlugin() {
         }, 5L)
         /* Save messages for stats gui items if custom items added, for each language */
         Language.setupCustomStatsMessages()
+        /* Team selector (used to be a separate addon) */
+        TeamSelectorModule.enable()
         /* PlaceholderAPI Support */
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             out.info("Hooked into PlaceholderAPI support!")
