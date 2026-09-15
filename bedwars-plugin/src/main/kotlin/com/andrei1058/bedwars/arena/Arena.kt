@@ -80,7 +80,6 @@ import com.andrei1058.bedwars.arena.tasks.GameRestartingTask
 import com.andrei1058.bedwars.arena.tasks.GameStartingTask
 import com.andrei1058.bedwars.arena.tasks.ReJoinTask
 import com.andrei1058.bedwars.arena.team.BedWarsTeam
-import com.andrei1058.bedwars.arena.team.TeamAssigner
 import com.andrei1058.bedwars.arena.upgrades.BaseListener.Companion.isOnABase
 import com.andrei1058.bedwars.configuration.ArenaConfig
 import com.andrei1058.bedwars.configuration.Sounds
@@ -96,6 +95,7 @@ import com.andrei1058.bedwars.support.citizens.JoinNPC
 import com.andrei1058.bedwars.support.paper.TeleportManager
 import com.andrei1058.bedwars.support.papi.SupportPAPI
 import com.andrei1058.bedwars.support.vault.WithEconomy
+import com.andrei1058.bedwars.teamselector.teamselector.TeamSelectorAssigner
 import java.io.File
 import java.time.Instant
 import java.util.*
@@ -172,7 +172,7 @@ open class Arena : IArena {
     private var waitingLocation: Location? = null
     private var yKillHeight: Int = 0
     private var startTime: Instant = uninitialized()
-    private var teamAssigner: ITeamAssigner? = TeamAssigner()
+    private var teamAssigner: ITeamAssigner? = TeamSelectorAssigner()
     private var allowMapBreak: Boolean = false
     private var winner: ITeam? = null
 
@@ -2225,7 +2225,7 @@ open class Arena : IArena {
 
     override fun setTeamAssigner(teamAssigner: ITeamAssigner?) {
         if (teamAssigner == null) {
-            this.teamAssigner = TeamAssigner()
+            this.teamAssigner = TeamSelectorAssigner()
             plugin.getLogger().info("Using Default team assigner on arena: " + this.getArenaName())
         } else {
             this.teamAssigner = teamAssigner
