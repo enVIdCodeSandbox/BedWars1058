@@ -66,9 +66,14 @@ object ArenaGUI {
             arenas = ArrayList(Arena.getArenas())
         } else {
             arenas = ArrayList()
+            // several groups can be combined with a plus, like in /bw join
+            val groups = ash.getGroup().split("\\+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             for (a in Arena.getArenas()) {
-                if (a.getGroup().equals(ash.getGroup(), ignoreCase = true)) {
-                    arenas.add(a)
+                for (group in groups) {
+                    if (a.getGroup().equals(group, ignoreCase = true)) {
+                        arenas.add(a)
+                        break
+                    }
                 }
             }
         }
