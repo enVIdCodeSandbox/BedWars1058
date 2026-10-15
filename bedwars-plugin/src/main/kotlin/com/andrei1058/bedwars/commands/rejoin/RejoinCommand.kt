@@ -36,25 +36,35 @@ open class RejoinCommand(name: String) : BukkitCommand(name) {
             s.sendMessage("This command is for players!")
             return true
         }
-        val p = s as Player
-        if (!p.hasPermission(Permissions.PERMISSION_REJOIN)) {
-            p.sendMessage(Language.getMsg(p, Messages.COMMAND_NOT_FOUND_OR_INSUFF_PERMS))
-            return true
-        }
-        val rj: ReJoin? = ReJoin.getPlayer(p)
-        if (rj == null) {
-            p.sendMessage(Language.getMsg(p, Messages.REJOIN_NO_ARENA))
-            Sounds.playSound("rejoin-denied", p)
-            return true
-        }
-        if (!rj.canReJoin()) {
-            p.sendMessage(Language.getMsg(p, Messages.REJOIN_DENIED))
-            Sounds.playSound("rejoin-denied", p)
-            return true
-        }
-        p.sendMessage(Language.getMsg(p, Messages.REJOIN_ALLOWED).replace("{arena}", rj.getArena()!!.getDisplayName()))
-        Sounds.playSound("rejoin-allowed", p)
-        rj.reJoin(p)
+        attemptRejoin(s as Player)
         return true
+    }
+
+    companion object {
+        /**
+         * Send a player back to the game he left, if he can.
+         * Shared by the /rejoin command and the reconnect button of the play menu.
+         */
+        @JvmStatic
+        fun attemptRejoin(p: Player) {
+            if (!p.hasPermission(Permissions.PERMISSION_REJOIN)) {
+                p.sendMessage(Language.getMsg(p, Messages.COMMAND_NOT_FOUND_OR_INSUFF_PERMS))
+                return
+            }
+            val rj: ReJoin? = ReJoin.getPlayer(p)
+            if (rj == null) {
+                p.sendMessage(Language.getMsg(p, Messages.REJOIN_NO_ARENA))
+                Sounds.playSound("rejoin-denied", p)
+                return
+            }
+            if (!rj.canReJoin()) {
+                p.sendMessage(Language.getMsg(p, Messages.REJOIN_DENIED))
+                Sounds.playSound("rejoin-denied", p)
+                return
+            }
+            p.sendMessage(Language.getMsg(p, Messages.REJOIN_ALLOWED).replace("{arena}", rj.getArena()!!.getDisplayName()))
+            Sounds.playSound("rejoin-allowed", p)
+            rj.reJoin(p)
+        }
     }
 }
