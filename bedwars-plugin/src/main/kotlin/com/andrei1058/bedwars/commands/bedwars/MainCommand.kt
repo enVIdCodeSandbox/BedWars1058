@@ -37,6 +37,7 @@ import com.andrei1058.bedwars.commands.bedwars.subcmds.regular.*
 import com.andrei1058.bedwars.commands.bedwars.subcmds.sensitive.Level
 import com.andrei1058.bedwars.commands.bedwars.subcmds.sensitive.Reload
 import com.andrei1058.bedwars.commands.bedwars.subcmds.sensitive.setup.*
+import com.andrei1058.bedwars.playmenu.CmdPlay
 import com.andrei1058.bedwars.support.citizens.JoinNPC
 import java.util.ArrayList
 import java.util.Arrays
@@ -165,6 +166,7 @@ open class MainCommand(name: String) : BukkitCommand(name), ParentCommand {
         CmdTeleporter(this, "teleporter")
         if (getServerType() != ServerType.BUNGEE) {
             CmdGUI(this, "gui")
+            CmdPlay(this, "play")
         }
         CmdStats(this, "stats")
         CmdStart(this, "forceStart")
