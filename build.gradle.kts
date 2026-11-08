@@ -44,11 +44,8 @@ allprojects {
             }
         }
         maven("https://repo.papermc.io/repository/maven-public/")
-        // The repository moved from andrei1058.com to andrei1058.dev. Only the VIP features API still comes from there,
-        // the sidebar library is built from source (see SidebarLib/).
-        maven("https://repo.andrei1058.dev/releases/") {
-            content { includeGroupByRegex("com\\.andrei1058.*") }
-        }
+        // repo.andrei1058.dev is no longer controlled by the project (it redirects to an unrelated site over HTTP), so it
+        // is not used. The VIP features API comes from mavenLocal, the sidebar library is built from source (SidebarLib/).
         maven("https://repo.andrei1058.com/releases/") {
             content { includeGroupByRegex("com\\.andrei1058.*") }
         }

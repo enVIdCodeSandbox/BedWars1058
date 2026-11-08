@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("com.gradleup.shadow") version "8.3.5"
+    id("com.gradleup.shadow") version "9.2.2"
 }
 
 // The core is written in Kotlin (converted from Java), sources are in src/main/kotlin.
