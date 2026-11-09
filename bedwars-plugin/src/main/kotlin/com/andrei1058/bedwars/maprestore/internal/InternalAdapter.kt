@@ -55,8 +55,9 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
                 val bf = File(backupFolder, a.getArenaName() + ".zip")
                 val af = File(Bukkit.getWorldContainer(), a.getArenaName())
-                // an extra game of an arena runs in its own copy of the map
-                val instance: Boolean = a.getWorldName() != a.getArenaName()
+                // (on 26.1+ every game is: Paper only reads worlds from the main level folder, see WorldLayout)
+                val instance: Boolean = WorldLayout.isModernServer() || a.getWorldName() != a.getArenaName()
+                val runtimeDir = WorldLayout.worldDir(a.getWorldName())
                 var hadBackup: Boolean
                 synchronized(ZIP_LOCK) {
                     hadBackup = bf.exists()
@@ -66,17 +67,17 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                 }
                 if (bf.exists() && (hadBackup || instance)) {
                     if (instance) {
-                        FileUtil.delete(File(Bukkit.getWorldContainer(), a.getWorldName()))
+                        FileUtil.delete(runtimeDir)
                     } else {
                         FileUtil.delete(af)
                     }
                     try {
-                        ZipFileUtil.unzipFileIntoDirectory(bf, File(Bukkit.getWorldContainer(), a.getWorldName()))
+                        ZipFileUtil.unzipFileIntoDirectory(bf, runtimeDir)
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
                 }
-                WorldLayout.normalize(File(Bukkit.getWorldContainer(), a.getWorldName().unchecked()))
+                WorldLayout.normalize(runtimeDir)
                 deleteWorldTrash(a.getWorldName().unchecked())
                 Bukkit.getScheduler().runTask(plugin, Runnable {
                     val wc = WorldCreator(a.getWorldName())
@@ -89,6 +90,7 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                     w.setKeepSpawnInMemory(true)
                     w.setAutoSave(false)
                 })
+                // an extra game of an arena runs in its own copy of the map
             })
         })
     }
@@ -117,8 +119,8 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                     Bukkit.getScheduler().runTaskLater(plugin, Runnable { Arena(a.getArenaName(), null) }, 80L)
                 }
             }
-            if (a.getWorldName() != a.getArenaName()) {
-                deleteWorld(a.getWorldName().unchecked())
+            if (WorldLayout.isModernServer() || a.getWorldName() != a.getArenaName()) {
+                deleteRuntime(a.getWorldName().unchecked())
             }
         })
     }
@@ -126,9 +128,9 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
     override fun onDisable(a: IArena) {
         if (BedWars.isShuttingDown()) {
             Bukkit.unloadWorld(a.getWorldName(), false)
-            if (a.getWorldName() != a.getArenaName()) {
+            if (WorldLayout.isModernServer() || a.getWorldName() != a.getArenaName()) {
                 try {
-                    FileUtils.deleteDirectory(File(Bukkit.getWorldContainer(), a.getWorldName()))
+                    FileUtils.deleteDirectory(WorldLayout.worldDir(a.getWorldName()))
                 } catch (ignored: IOException) {
                 }
             }
@@ -136,8 +138,8 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
         }
         Bukkit.getScheduler().runTask(getOwner(), Runnable {
             Bukkit.unloadWorld(a.getWorldName(), false)
-            if (a.getWorldName() != a.getArenaName()) {
-                deleteWorld(a.getWorldName())
+            if (WorldLayout.isModernServer() || a.getWorldName() != a.getArenaName()) {
+                deleteRuntime(a.getWorldName())
             }
         })
     }
@@ -154,13 +156,25 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                     e.printStackTrace()
                 }
             }
-            WorldLayout.normalize(af)
+            if (WorldLayout.isModernServer()) {
+                // Paper 26.1+ only reads worlds from the main level folder: play the map from there
+                val dir = WorldLayout.worldDir(s.getWorldName())
+                FileUtil.delete(dir)
+                if (File(af, "region").isDirectory()) {
+                    try {
+                        FileUtils.copyDirectory(af, dir)
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+                WorldLayout.normalize(dir)
+            }
             val wc = WorldCreator(s.getWorldName())
             wc.generator(VoidChunkGenerator())
             wc.generateStructures(false)
             Bukkit.getScheduler().runTask(getOwner(), Runnable lambda8@{
                 try {
-                    val level = File(Bukkit.getWorldContainer(), s.getWorldName() + "/region")
+                    val level = File(WorldLayout.worldDir(s.getWorldName()), "region")
                     if (level.exists()) {
                         s.getPlayer().sendMessage(ChatColor.GREEN.toString() + "Loading " + s.getWorldName() + " from Bukkit worlds container.")
                         deleteWorldTrash(s.getWorldName())
@@ -192,18 +206,42 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
         Bukkit.getScheduler().runTask(getOwner(), Runnable {
             Bukkit.getWorld(s.getWorldName()).save()
             Bukkit.unloadWorld(s.getWorldName(), true)
-            Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable { WorldZipper(s.getWorldName(), true) })
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
+                try {
+                    WorldLayout.exportToRoot(s.getWorldName())
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                WorldZipper(s.getWorldName(), true)
+                if (WorldLayout.isModernServer()) {
+                    FileUtil.delete(WorldLayout.worldDir(s.getWorldName()))
+                }
+            })
         })
     }
 
     override fun isWorld(name: String): Boolean {
-        return File(Bukkit.getWorldContainer(), name + "/region").exists()
+        return File(Bukkit.getWorldContainer(), name + "/region").exists() || File(Bukkit.getWorldContainer(), name + "/dimensions/minecraft/overworld/region").exists()
+    }
+
+    /** Deletes the loaded copy of a world (the map in the server root is not touched on 26.1+). */
+    private fun deleteRuntime(name: String) {
+        Bukkit.getScheduler().runTaskAsynchronously(getOwner(), Runnable {
+            try {
+                FileUtils.deleteDirectory(WorldLayout.worldDir(name))
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        })
     }
 
     override fun deleteWorld(name: String) {
         Bukkit.getScheduler().runTaskAsynchronously(getOwner(), Runnable {
             try {
                 FileUtils.deleteDirectory(File(Bukkit.getWorldContainer(), name))
+                if (WorldLayout.isModernServer()) {
+                    FileUtils.deleteDirectory(WorldLayout.worldDir(name))
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
             }
@@ -301,7 +339,8 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
     }
 
     private fun deleteWorldTrash(world: String) {
-        for (f in arrayOf<File>(File(Bukkit.getWorldContainer(), world + "/level.dat"), File(Bukkit.getWorldContainer(), world + "/level.dat_mcr"), File(Bukkit.getWorldContainer(), world + "/level.dat_old"), File(Bukkit.getWorldContainer(), world + "/session.lock"), File(Bukkit.getWorldContainer(), world + "/uid.dat"))) {
+        val dir = WorldLayout.worldDir(world)
+        for (f in arrayOf<File>(File(dir, "level.dat"), File(dir, "level.dat_mcr"), File(dir, "level.dat_old"), File(dir, "session.lock"), File(dir, "uid.dat"))) {
             if (f.exists()) {
                 if (!f.delete()) {
                     getOwner().getLogger().warning("Could not delete: " + f.getPath())

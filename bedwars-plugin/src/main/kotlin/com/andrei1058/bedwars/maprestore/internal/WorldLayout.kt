@@ -3,16 +3,24 @@ package com.andrei1058.bedwars.maprestore.internal
 import java.io.File
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
+import java.util.Locale
+import org.apache.commons.io.FileUtils
 import org.bukkit.Bukkit
 
 /**
- * Minecraft 26.1 moved the overworld from the world root into dimensions/minecraft/overworld
- * (and DIM-1 / DIM1 into dimensions/minecraft/the_nether / the_end). A map saved in the other layout
- * would be loaded as a freshly generated vanilla world, so it is converted before the world is created.
+ * World storage differs between server versions.
+ * <ul>
+ *   <li>Up to 1.21.x a world is a folder in the server root: {@code <root>/<name>/region}.</li>
+ *   <li>From 26.1 Paper stores every world, including the ones plugins create, inside the main level folder:
+ *   {@code <level>/dimensions/minecraft/<name lower case>/region}. A map copied into the server root is ignored and
+ *   the world is generated from scratch.</li>
+ * </ul>
+ * Maps are kept as plain folders / zips in the old layout; they are copied to {@link #worldDir(String)} to be played.
  */
 object WorldLayout {
     private val DATA: Array<String> = arrayOf<String>("region", "entities", "poi")
-    private val EXTRA: Array<Array<String>> = arrayOf<Array<String>>(arrayOf<String>("DIM-1", "the_nether"), arrayOf<String>("DIM1", "the_end"))
+    private val JUNK: Array<String> = arrayOf<String>("dimensions", "DIM-1", "DIM1", "playerdata", "players", "stats", "advancements", "level.dat", "level.dat_old", "level.dat_mcr", "uid.dat", "session.lock")
 
     /**
      * @return true on Minecraft 26.1+ ("26.3-R0.1-SNAPSHOT"; older versions start with "1.").
@@ -34,44 +42,89 @@ object WorldLayout {
         }
     }
 
+    /** Where the files of the world called {@code name} live while it is loaded. */
     @JvmStatic
-    fun normalize(world: File) {
-        if (!world.isDirectory()) {
+    fun worldDir(name: String): File {
+        if (!isModernServer()) {
+            return File(Bukkit.getWorldContainer(), name)
+        }
+        return File(levelDirectory(), "dimensions/minecraft/" + name.toLowerCase(Locale.ENGLISH).replace(' ', '_'))
+    }
+
+    /** The folder of the main level ("world"). */
+    @JvmStatic
+    fun levelDirectory(): File {
+        try {
+            val path = Bukkit.getServer().javaClass.getMethod("getLevelDirectory").invoke(Bukkit.getServer())
+            val f = (path as Path).toFile()
+            return if (f.isAbsolute()) f else File(Bukkit.getWorldContainer(), f.getPath())
+        } catch (t: Throwable) {
+            return File(Bukkit.getWorldContainer(), Bukkit.getWorlds().get(0).getName())
+        }
+    }
+
+    /**
+     * Makes a freshly copied map usable.
+     * On 26.1+ {@code dir} is the final dimension folder: data is moved up from {@code dimensions/minecraft/overworld}
+     * when the map was saved in the new layout, and files that belong to a whole level are dropped.
+     * On older servers a map saved in the new layout is converted back to the old one.
+     */
+    @JvmStatic
+    fun normalize(dir: File) {
+        if (!dir.isDirectory()) {
             return
         }
-        val modern: Boolean = isModernServer()
-        val overworld = File(world, "dimensions/minecraft/overworld")
         try {
-            if (modern) {
-                if (File(world, "region").isDirectory() && !File(overworld, "region").isDirectory()) {
-                    overworld.mkdirs()
+            val overworld = File(dir, "dimensions/minecraft/overworld")
+            if (isModernServer()) {
+                if (!File(dir, "region").isDirectory() && File(overworld, "region").isDirectory()) {
                     for (n in DATA) {
-                        move(File(world, n), File(overworld, n))
+                        move(File(overworld, n), File(dir, n))
                     }
                 }
-                for (e in EXTRA) {
-                    val target = File(world, "dimensions/minecraft/" + e[1])
-                    if (File(world, e[0]).isDirectory() && !File(target, "region").isDirectory()) {
-                        target.getParentFile().mkdirs()
-                        move(File(world, e[0]), target)
+                for (n in JUNK) {
+                    val f = File(dir, n)
+                    if (f.isDirectory()) {
+                        FileUtils.deleteDirectory(f)
+                    } else {
+                        f.delete()
                     }
                 }
-            } else {
-                if (File(overworld, "region").isDirectory() && !File(world, "region").isDirectory()) {
-                    for (n in DATA) {
-                        move(File(overworld, n), File(world, n))
-                    }
+            } else if (!File(dir, "region").isDirectory() && File(overworld, "region").isDirectory()) {
+                for (n in DATA) {
+                    move(File(overworld, n), File(dir, n))
                 }
-                for (e in EXTRA) {
-                    val source = File(world, "dimensions/minecraft/" + e[1])
-                    if (source.isDirectory() && !File(world, e[0]).exists()) {
-                        move(source, File(world, e[0]))
-                    }
+                val nether = File(dir, "dimensions/minecraft/the_nether")
+                if (nether.isDirectory() && !File(dir, "DIM-1").exists()) {
+                    move(nether, File(dir, "DIM-1"))
+                }
+                val end = File(dir, "dimensions/minecraft/the_end")
+                if (end.isDirectory() && !File(dir, "DIM1").exists()) {
+                    move(end, File(dir, "DIM1"))
                 }
             }
         } catch (ex: IOException) {
             ex.printStackTrace()
         }
+    }
+
+    /**
+     * 26.1+: copies the played world back into {@code <root>/<name>} (old layout) so it can be zipped as the map.
+     * Used when a setup session ends.
+     */
+    @Throws(IOException::class)
+    @JvmStatic
+    fun exportToRoot(name: String) {
+        if (!isModernServer()) {
+            return
+        }
+        val from = worldDir(name)
+        val to = File(Bukkit.getWorldContainer(), name)
+        if (!File(from, "region").isDirectory()) {
+            return
+        }
+        FileUtils.deleteDirectory(to)
+        FileUtils.copyDirectory(from, to)
     }
 
     @Throws(IOException::class)
