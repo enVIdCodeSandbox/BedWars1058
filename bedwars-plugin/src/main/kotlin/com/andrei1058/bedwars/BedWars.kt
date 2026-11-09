@@ -249,6 +249,7 @@ open class BedWars : JavaPlugin() {
             registerEvents(HealPoolListner())
         }
         registerEvents(com.andrei1058.bedwars.listeners.VoidGuardListener())
+        registerEvents(com.andrei1058.bedwars.listeners.SpongeListener(), com.andrei1058.bedwars.listeners.WorldEditGuard())
         if (getServerType() == ServerType.BUNGEE) {
             if (autoscale) {
                 //registerEvents(new ArenaListeners());

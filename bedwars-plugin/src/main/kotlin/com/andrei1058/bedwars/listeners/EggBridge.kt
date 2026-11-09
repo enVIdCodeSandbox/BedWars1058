@@ -35,6 +35,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.entity.ProjectileLaunchEvent
+import org.bukkit.event.player.PlayerEggThrowEvent
 
 open class EggBridge : Listener {
     @EventHandler
@@ -54,8 +55,7 @@ open class EggBridge : Listener {
                     if (arena.isPlayer(shooter)) {
                         val throwEvent = EggBridgeThrowEvent(shooter, arena)
                         Bukkit.getPluginManager().callEvent(throwEvent)
-                        if (event.isCancelled()) {
-                            event.setCancelled(true)
+                        if (throwEvent.isCancelled()) {
                             return
                         }
                         bridges.put(projectile, EggBridgeTask(shooter, projectile, arena.getTeam(shooter)!!.getColor()))
@@ -68,7 +68,19 @@ open class EggBridge : Listener {
     @EventHandler
     open fun onHit(e: ProjectileHitEvent) {
         if (e.getEntity() is Egg) {
-            removeEgg(e.getEntity() as Egg)
+            // the egg is about to vanish; the bridge goes on along its path, through blocks
+            val task: EggBridgeTask? = bridges.get(e.getEntity() as Egg)
+            if (task != null) {
+                task.onProjectileHit()
+            }
+        }
+    }
+
+    /** A bridge egg must not hatch a chicken where it lands. */
+    @EventHandler
+    open fun onEggHatch(e: PlayerEggThrowEvent) {
+        if (bridges.containsKey(e.getEgg())) {
+            e.setHatching(false)
         }
     }
 
