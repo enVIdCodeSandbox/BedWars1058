@@ -1,6 +1,6 @@
 plugins {
     kotlin("jvm")
-    id("com.gradleup.shadow") version "9.2.2"
+    id("com.gradleup.shadow") version "8.3.10"
 }
 
 // The core is written in Kotlin (converted from Java), sources are in src/main/kotlin.
@@ -14,7 +14,6 @@ dependencies {
     implementation("commons-io:commons-io:2.13.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.slf4j:slf4j-simple:2.0.7")
-    implementation("com.andrei1058.vipfeatures:vipfeatures-api:1.+")
     // JDBC driver for the replay feature's optional MySQL/MariaDB storage (loaded through the service loader)
     implementation("org.mariadb.jdbc:mariadb-java-client:3.5.1")
 
@@ -53,6 +52,8 @@ dependencies {
     }
 
     // ---- provided by the server or by other plugins ----
+    // VipFeatures API stubs (see vipfeatures-stub): the real API is provided by the VipFeatures plugin
+    compileOnly(project(":vipfeatures-stub"))
     compileOnly("org.spigotmc:spigot:1.8.8-R0.1-SNAPSHOT")
     compileOnly("net.md-5:bungeecord-chat:1.18-R0.1-SNAPSHOT")
     compileOnly("me.clip:placeholderapi:2.11.6")

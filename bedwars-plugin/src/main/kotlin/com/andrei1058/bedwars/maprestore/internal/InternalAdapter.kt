@@ -76,6 +76,7 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                         e.printStackTrace()
                     }
                 }
+                WorldLayout.normalize(File(Bukkit.getWorldContainer(), a.getWorldName().unchecked()))
                 deleteWorldTrash(a.getWorldName().unchecked())
                 Bukkit.getScheduler().runTask(plugin, Runnable {
                     val wc = WorldCreator(a.getWorldName())
@@ -153,6 +154,7 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                     e.printStackTrace()
                 }
             }
+            WorldLayout.normalize(af)
             val wc = WorldCreator(s.getWorldName())
             wc.generator(VoidChunkGenerator())
             wc.generateStructures(false)

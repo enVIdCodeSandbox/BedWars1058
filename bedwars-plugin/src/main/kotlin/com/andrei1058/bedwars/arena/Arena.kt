@@ -2614,9 +2614,11 @@ open class Arena : IArena {
         @JvmStatic
         fun removeFromEnableQueue(a: IArena) {
             enableQueue.remove(a)
-            if (!enableQueue.isEmpty()) {
-                BedWars.getAPI().getRestoreAdapter().onEnable(enableQueue.get(0))
-                plugin.getLogger().info("Loading arena: " + enableQueue.get(0).getWorldName())
+            // the adapter may load the world synchronously, which re-enters this method and empties the queue
+            val next: IArena? = if (enableQueue.isEmpty()) null else enableQueue.get(0)
+            if (next != null) {
+                plugin.getLogger().info("Loading arena: " + next.getWorldName())
+                BedWars.getAPI().getRestoreAdapter().onEnable(next)
             }
         }
 

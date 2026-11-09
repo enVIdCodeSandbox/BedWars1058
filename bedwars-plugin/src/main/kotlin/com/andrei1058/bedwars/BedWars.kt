@@ -427,8 +427,6 @@ open class BedWars : JavaPlugin() {
                 out.log(java.util.logging.Level.INFO, "Hook into VipFeatures support.")
             } catch (e: Exception) {
                 out.warning("Could not load support for VipFeatures.")
-            } catch (miniGameAlreadyRegistered: MiniGameAlreadyRegistered) {
-                miniGameAlreadyRegistered.printStackTrace()
             }
         }
         Bukkit.getScheduler().runTaskLater(this, Runnable { out.info("This server is running in " + getServerType() + " with auto-scale " + autoscale) }, 100L)

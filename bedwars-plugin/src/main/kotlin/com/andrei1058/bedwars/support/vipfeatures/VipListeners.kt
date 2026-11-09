@@ -48,8 +48,8 @@ open class VipListeners(private val api: IVipFeatures) : Listener {
 
     @EventHandler
     open fun onBockChange(e: BlockChangeEvent) {
-        if (BedWars.getAPI().getArenaUtil().getArenaByName(e.getLocation().getWorld().getName()) != null) {
-            val a = BedWars.getAPI().getArenaUtil().getArenaByName(e.getLocation().getWorld().getName())
+        val a: IArena? = BedWars.getAPI().getArenaUtil().getArenaByIdentifier(e.getLocation().getWorld().getName())
+        if (a != null) {
             for (t in a.getTeams()!!) {
                 for (x in -1 until 2) {
                     for (z in -1 until 2) {
