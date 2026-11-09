@@ -465,16 +465,17 @@ open class BedWarsTeam : ITeam {
      * Equip a player with default armor
      */
     override fun sendArmor(p: Player) {
-        if (p.getInventory().getHelmet() == null) {
+        // Paper 26.x returns an AIR stack (never null) for an empty armor slot
+        if (isEmptySlot(p.getInventory().getHelmet())) {
             p.getInventory().setHelmet(createArmor(Material.LEATHER_HELMET))
         }
-        if (p.getInventory().getChestplate() == null) {
+        if (isEmptySlot(p.getInventory().getChestplate())) {
             p.getInventory().setChestplate(createArmor(Material.LEATHER_CHESTPLATE))
         }
-        if (p.getInventory().getLeggings() == null) {
+        if (isEmptySlot(p.getInventory().getLeggings())) {
             p.getInventory().setLeggings(createArmor(Material.LEATHER_LEGGINGS))
         }
-        if (p.getInventory().getBoots() == null) {
+        if (isEmptySlot(p.getInventory().getBoots())) {
             p.getInventory().setBoots(createArmor(Material.LEATHER_BOOTS))
         }
     }
@@ -911,5 +912,10 @@ open class BedWarsTeam : ITeam {
     companion object {
         // Fall invulnerability when teammates respawn
         @JvmField var reSpawnInvulnerability: HashMap<UUID, Long> = HashMap()
+
+        @JvmStatic
+        private fun isEmptySlot(item: ItemStack?): Boolean {
+            return item == null || item.getType() == Material.AIR || item.getAmount() <= 0
+        }
     }
 }
