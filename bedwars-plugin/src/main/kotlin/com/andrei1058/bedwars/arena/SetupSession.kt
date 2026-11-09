@@ -159,7 +159,7 @@ open class SetupSession(private var player: Player, private var worldName: Strin
         val w = Bukkit.getWorld(getWorldName())
         Bukkit.getScheduler().runTaskLater(plugin, Runnable { w.getEntities().stream().filter({ e -> e.getType() != EntityType.PLAYER }).filter({ e -> e.getType() != EntityType.PAINTING }).filter({ e -> e.getType() != EntityType.ITEM_FRAME }).forEach(Entity::remove) }, 30L)
         w.setAutoSave(false)
-        w.setGameRuleValue("doMobSpawning", "false")
+        com.andrei1058.bedwars.support.GameRuleCompat.set(w, "doMobSpawning", "false")
         Bukkit.getPluginManager().callEvent(SetupSessionStartEvent(this))
         setStarted(true)
         Bukkit.getScheduler().runTaskLater(plugin, Runnable {

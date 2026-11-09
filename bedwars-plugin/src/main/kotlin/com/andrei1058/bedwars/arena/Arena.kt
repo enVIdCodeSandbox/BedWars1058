@@ -309,7 +309,7 @@ open class Arena : IArena {
         for (s in getConfig()!!.getList(ConfigPath.ARENA_GAME_RULES)) {
             val rule = s.split(":".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             if (rule.size == 2) {
-                world.setGameRuleValue(rule[0], rule[1])
+                com.andrei1058.bedwars.support.GameRuleCompat.set(world, rule[0], rule[1])
             }
         }
         world.setAutoSave(false)

@@ -248,6 +248,7 @@ open class BedWars : JavaPlugin() {
         if (BedWars.config.getBoolean(ConfigPath.GENERAL_CONFIGURATION_HEAL_POOL_ENABLE)) {
             registerEvents(HealPoolListner())
         }
+        registerEvents(com.andrei1058.bedwars.listeners.VoidGuardListener())
         if (getServerType() == ServerType.BUNGEE) {
             if (autoscale) {
                 //registerEvents(new ArenaListeners());
