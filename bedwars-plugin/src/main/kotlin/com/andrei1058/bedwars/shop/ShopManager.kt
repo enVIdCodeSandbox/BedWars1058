@@ -374,6 +374,15 @@ open class ShopManager : ConfigManager(BedWars.plugin, "shop", BedWars.plugin.ge
     }
 
     /**
+     * Re-reads shop.yml and rebuilds the shop menus. Players that have the shop open keep the old menu until they
+     * reopen it.
+     */
+    open fun reloadShop() {
+        reload()
+        loadShop()
+    }
+
+    /**
      * Register shop related listeners
      */
     private fun registerListeners() {

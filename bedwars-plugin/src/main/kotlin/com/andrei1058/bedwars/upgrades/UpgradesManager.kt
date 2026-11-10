@@ -64,6 +64,23 @@ object UpgradesManager {
         //noinspection ResultOfMethodCallIgnored
         oldFile.delete()
         upgrades = UpgradesConfig("upgrades2", plugin.getDataFolder().getPath())
+        loadAll()
+        BedWars.registerEvents(InventoryListener(), UpgradeOpenListener())
+    }
+
+    /**
+     * Re-reads upgrades2.yml and rebuilds the team upgrade menus (the listeners stay registered). Arenas that are
+     * running keep the menus they were created with.
+     */
+    @JvmStatic
+    fun reloadConfig() {
+        menuContentByName.clear()
+        upgrades.reload()
+        loadAll()
+    }
+
+    @JvmStatic
+    private fun loadAll() {
         var name: String
         for (index in upgrades.getYml().getConfigurationSection("").getKeys(false)) {
             name = index
@@ -104,7 +121,6 @@ object UpgradesManager {
                 }
             }
         }
-        BedWars.registerEvents(InventoryListener(), UpgradeOpenListener())
     }
 
     /**

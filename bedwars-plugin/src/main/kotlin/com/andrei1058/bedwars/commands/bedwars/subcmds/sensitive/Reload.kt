@@ -44,15 +44,46 @@ open class Reload(parent: ParentCommand, name: String) : SubCommand(parent, name
                 return true
             }
         }
-        for (l in Language.getLanguages()) {
-            l.reload()
-            s.sendMessage("§6 ▪ §7" + l.getLangName() + " reloaded!")
+        val scope: String = if (args.size == 0) "all" else args[0].lowercase()
+        val all: Boolean = scope == "all"
+        var any: Boolean = false
+        if (all || scope == "config") {
+            any = true
+            run(s, "config.yml", { com.andrei1058.bedwars.BedWars.config.reload() })
+            run(s, "generators.yml", { com.andrei1058.bedwars.BedWars.generators.reload() })
+            run(s, "sidebar and tab list", {
+                // header/footer, tab formats and sidebar lines read the config and language files live
+                val svc = com.andrei1058.bedwars.sidebar.SidebarService.getInstance()
+                svc.refreshTitles()
+                svc.refreshPlaceholders()
+                svc.refreshTabList()
+                svc.refreshTabHeaderFooter()
+            })
         }
+        if (all || scope == "lang" || scope == "messages") {
+            any = true
+            for (l in Language.getLanguages()) {
+                run(s, "language " + l.getLangName(), l::reload)
+            }
+        }
+        if (all || scope == "shop") {
+            any = true
+            run(s, "shop.yml", { com.andrei1058.bedwars.BedWars.shop.reloadShop() })
+        }
+        if (all || scope == "upgrades") {
+            any = true
+            run(s, "upgrades2.yml", com.andrei1058.bedwars.upgrades.UpgradesManager::reloadConfig)
+        }
+        if (!any) {
+            s.sendMessage("§6 ▪ §7/" + getParent().getName() + " " + getSubCommandName() + " [all|config|lang|shop|upgrades]")
+            return true
+        }
+        s.sendMessage("§6 ▪ §7Arenas, maps and running games are not touched. Arena settings need an arena restart.")
         return true
     }
 
     override fun getTabComplete(): MutableList<String>? {
-        return null
+        return java.util.Arrays.asList("all", "config", "lang", "shop", "upgrades")
     }
 
     override fun canSee(s: CommandSender, api: BedWars): Boolean {
@@ -72,6 +103,19 @@ open class Reload(parent: ParentCommand, name: String) : SubCommand(parent, name
         setPriority(11)
         showInList(true)
         setPermission(Permissions.PERMISSION_RELOAD)
-        setDisplayInfo(Misc.msgHoverClick("§6 ▪ §7/" + getParent().getName() + " " + getSubCommandName() + "       §8 - §ereload messages", "§fReload messages.\n§cNot recommended!", "/" + getParent().getName() + " " + getSubCommandName(), ClickEvent.Action.RUN_COMMAND))
+        setDisplayInfo(Misc.msgHoverClick("§6 ▪ §7/" + getParent().getName() + " " + getSubCommandName() + "       §8 - §ereload configs", "§fReload config, language, shop and upgrades\nwithout restarting the server.\n§7Usage: /bw reload [all|config|lang|shop|upgrades]", "/" + getParent().getName() + " " + getSubCommandName(), ClickEvent.Action.RUN_COMMAND))
+    }
+
+    companion object {
+        @JvmStatic
+        private fun run(s: CommandSender, what: String, action: Runnable) {
+            try {
+                action.run()
+                s.sendMessage("§6 ▪ §a" + what + " reloaded!")
+            } catch (t: Throwable) {
+                s.sendMessage("§6 ▪ §c" + what + " failed: " + t.getMessage() + " (see console)")
+                t.printStackTrace()
+            }
+        }
     }
 }
