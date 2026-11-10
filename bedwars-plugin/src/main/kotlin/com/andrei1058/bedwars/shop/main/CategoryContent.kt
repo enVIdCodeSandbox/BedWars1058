@@ -185,8 +185,16 @@ open class CategoryContent : ICategoryContent {
      * Add tier items to player inventory
      */
     open fun giveItems(player: Player, shopCache: ShopCache, arena: IArena) {
-        for (bi in contentTiers.get(shopCache.getContentTier(getIdentifier().unchecked()) - 1).getBuyItemsList()) {
-            bi.give(player, arena)
+        val tier = contentTiers.get(shopCache.getContentTier(getIdentifier().unchecked()) - 1)
+        var shopName: String? = null
+        if (itemNamePath != null && Language.getPlayerLanguage(player).getYml().get(itemNamePath) != null) {
+            shopName = getMsg(player, itemNamePath).replace("{color}", ChatColor.GREEN.toString()).replace("{tier}", getRomanNumber(tier.getValue())).trim()
+        }
+        for (bi in tier.getBuyItemsList()) {
+            if (bi is BuyItem) {
+                (bi as BuyItem).give(player, arena, shopName)
+            } else {
+                bi.give(player, arena)
         }
     }
 

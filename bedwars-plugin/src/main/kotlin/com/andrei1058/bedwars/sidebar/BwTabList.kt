@@ -283,6 +283,11 @@ open class BwTabList(private val sidebar: BwSidebar) {
 
     private fun getTabText(path: String, targetPlayer: Player, replacements: HashMap<String, String>?): SidebarLine {
         var strings = Language.getList(sidebar.getPlayer(), path)
+        // the in-game tab prefix of alive players always shows the team, even if the language file does not mention it
+        val ensureTeamTag: Boolean = null != replacements && path == Messages.FORMATTING_SB_TAB_PLAYING_PREFIX && strings.stream().noneMatch({ l -> l.contains("{team") })
+        if (ensureTeamTag && strings.isEmpty()) {
+            strings = java.util.List.of("")
+        }
         if (strings.isEmpty()) {
             return object : SidebarLine() {
                 override fun getLine(): String {
@@ -291,7 +296,11 @@ open class BwTabList(private val sidebar: BwSidebar) {
             }
         }
         strings = ArrayList()
-        for (string in Language.getList(sidebar.getPlayer(), path)) {
+        for (string0 in Language.getList(sidebar.getPlayer(), path)) {
+            var string = string0
+            if (ensureTeamTag) {
+                string = "{teamColor}{teamTag} " + string
+            }
             var parsed = string.replace("{vPrefix}", BedWars.getChatSupport().getPrefix(targetPlayer)).replace("{vSuffix}", BedWars.getChatSupport().getSuffix(targetPlayer))
             if (null != replacements) {
                 for (entry in replacements.entries) {

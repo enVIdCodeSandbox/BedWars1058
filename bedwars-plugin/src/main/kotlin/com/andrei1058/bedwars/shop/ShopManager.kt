@@ -68,7 +68,7 @@ open class ShopManager : ConfigManager(BedWars.plugin, "shop", BedWars.plugin.ge
         getYml().addDefault(ConfigPath.SHOP_SPECIAL_SILVERFISH_SPEED, 0.25)
         getYml().addDefault(ConfigPath.SHOP_SPECIAL_SILVERFISH_DESPAWN, 15)
         getYml().addDefault(ConfigPath.SHOP_SPECIAL_IRON_GOLEM_ENABLE, true)
-        getYml().addDefault(ConfigPath.SHOP_SPECIAL_IRON_GOLEM_MATERIAL, BedWars.getForCurrentVersion("MONSTER_EGG", "MONSTER_EGG", "HORSE_SPAWN_EGG"))
+        getYml().addDefault(ConfigPath.SHOP_SPECIAL_IRON_GOLEM_MATERIAL, golemEggMaterial())
         getYml().addDefault(ConfigPath.SHOP_SPECIAL_IRON_GOLEM_DATA, 0)
         getYml().addDefault(ConfigPath.SHOP_SPECIAL_IRON_GOLEM_HEALTH, 100.0)
         getYml().addDefault(ConfigPath.SHOP_SPECIAL_IRON_GOLEM_DESPAWN, 240)
@@ -189,8 +189,8 @@ open class ShopManager : ConfigManager(BedWars.plugin, "shop", BedWars.plugin.ge
             addBuyItem(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "golden-apple", "tier1", "apple", BedWars.getForCurrentVersion("GOLDEN_APPLE", "GOLDEN_APPLE", "GOLDEN_APPLE"), 0, 1, "", "", "", false)
             adCategoryContentTier(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "bedbug", 20, "tier1", BedWars.getForCurrentVersion("SNOW_BALL", "SNOW_BALL", "SNOWBALL"), 0, 1, false, 40, "iron", false, false)
             addBuyItem(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "bedbug", "tier1", "bedbug", BedWars.getForCurrentVersion("SNOW_BALL", "SNOW_BALL", "SNOWBALL"), 0, 1, "", "", "", false)
-            adCategoryContentTier(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "dream-defender", 21, "tier1", BedWars.getForCurrentVersion("MONSTER_EGG", "MONSTER_EGG", "HORSE_SPAWN_EGG"), 0, 1, false, 120, "iron", false, false)
-            addBuyItem(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "dream-defender", "tier1", "defender", BedWars.getForCurrentVersion("MONSTER_EGG", "MONSTER_EGG", "HORSE_SPAWN_EGG"), 0, 1, "", "", "", false)
+            adCategoryContentTier(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "dream-defender", 21, "tier1", golemEggMaterial(), 0, 1, false, 120, "iron", false, false)
+            addBuyItem(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "dream-defender", "tier1", "defender", golemEggMaterial(), 0, 1, "", "", "", false)
             adCategoryContentTier(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "fireball", 22, "tier1", BedWars.getForCurrentVersion("FIREBALL", "FIREBALL", "FIRE_CHARGE"), 0, 1, false, 40, "iron", false, false)
             addBuyItem(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "fireball", "tier1", "fireball", BedWars.getForCurrentVersion("FIREBALL", "FIREBALL", "FIRE_CHARGE"), 0, 1, "", "", "Fireball", false)
             adCategoryContentTier(ConfigPath.SHOP_PATH_CATEGORY_UTILITY, "tnt", 23, "tier1", BedWars.getForCurrentVersion("TNT", "TNT", "TNT"), 0, 1, false, 4, "gold", false, false)
@@ -215,6 +215,7 @@ open class ShopManager : ConfigManager(BedWars.plugin, "shop", BedWars.plugin.ge
         if (getYml().get(ConfigPath.SHOP_PATH_CATEGORY_ARMOR + ConfigPath.SHOP_CATEGORY_CONTENT_PATH + ".iron-armor") != null) {
             getYml().addDefault(ConfigPath.SHOP_PATH_CATEGORY_ARMOR + ConfigPath.SHOP_CATEGORY_CONTENT_PATH + ".iron-armor" + "." + ConfigPath.SHOP_CATEGORY_CONTENT_WEIGHT, 1)
         }
+        migrateGolemEgg()
         //try materials
         try {
             val material = getYml().getString(ConfigPath.SHOP_SPECIAL_IRON_GOLEM_MATERIAL)
@@ -280,8 +281,22 @@ open class ShopManager : ConfigManager(BedWars.plugin, "shop", BedWars.plugin.ge
     }
 
     /**
-     * Create a tier for a shop content
+     * Shop files saved before the golem egg was used still say HORSE_SPAWN_EGG: switch those to the golem egg.
      */
+    private fun migrateGolemEgg() {
+        val egg = golemEggMaterial()
+        if (egg != "IRON_GOLEM_SPAWN_EGG") {
+            return
+        }
+        val base = ConfigPath.SHOP_PATH_CATEGORY_UTILITY + ConfigPath.SHOP_CATEGORY_CONTENT_PATH + ".dream-defender." + ConfigPath.SHOP_CATEGORY_CONTENT_CONTENT_TIERS + ".tier1"
+        val paths: Array<String> = arrayOf<String>(ConfigPath.SHOP_SPECIAL_IRON_GOLEM_MATERIAL, base + ConfigPath.SHOP_CONTENT_TIER_ITEM_MATERIAL, base + "." + ConfigPath.SHOP_CONTENT_BUY_ITEMS_PATH + ".defender.material")
+        for (path in paths) {
+            if ("HORSE_SPAWN_EGG" == getYml().getString(path)) {
+                getYml().set(path, egg)
+            }
+        }
+    }
+
     open fun adCategoryContentTier(path: String, contentName: String, contentSlot: Int, tierName: String, tierMaterial: String, tierData: Int, amount: Int, enchant: Boolean, tierCost: Int, tierCurrency: String, permanent: Boolean, downgradable: Boolean) {
         var path = path
         path += ConfigPath.SHOP_CATEGORY_CONTENT_PATH + "." + contentName + "."
@@ -403,6 +418,23 @@ open class ShopManager : ConfigManager(BedWars.plugin, "shop", BedWars.plugin.ge
                 i.setItemMeta(hideItemStuff(im))
             }
             return i
+        }
+
+        /**
+         * Icon of the Dream Defender: the iron golem spawn egg (exists since 1.19.3), the horse spawn egg before that.
+         */
+        @JvmStatic
+        fun golemEggMaterial(): String {
+            val legacy = BedWars.getForCurrentVersion("MONSTER_EGG", "MONSTER_EGG", "HORSE_SPAWN_EGG")
+            try {
+                Material.valueOf("IRON_GOLEM_SPAWN_EGG")
+                if (legacy != "MONSTER_EGG") {
+                    return "IRON_GOLEM_SPAWN_EGG"
+                }
+            } catch (ignored: IllegalArgumentException) {
+                // older server
+            }
+            return legacy
         }
 
         @JvmStatic

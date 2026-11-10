@@ -165,7 +165,22 @@ open class BuyItem : IBuyItem {
      * Give to a player
      */
     override fun give(player: Player, arena: IArena) {
+        give(player, arena, null)
+    }
+
+    /**
+     * Give to a player. [shopName] is used when the item has no name of its own (so it is not left with its vanilla
+     * one, like "Horse Spawn Egg").
+     */
+    open fun give(player: Player, arena: IArena, shopName: String?) {
         var i = itemStack.clone()
+        if (shopName != null && !shopName.isEmpty()) {
+            val named: ItemMeta? = i.getItemMeta()
+            if (named != null && !named.hasDisplayName()) {
+                named.setDisplayName(shopName)
+                i.setItemMeta(named)
+            }
+        }
         BedWars.debug("Giving BuyItem: " + getUpgradeIdentifier() + " to: " + player.getName())
         if (autoEquip && nms.isArmor(itemStack)) {
             val m = i.getType()
