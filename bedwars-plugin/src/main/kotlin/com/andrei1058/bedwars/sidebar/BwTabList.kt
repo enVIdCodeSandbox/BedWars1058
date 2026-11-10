@@ -398,6 +398,8 @@ open class BwTabList(private val sidebar: BwSidebar) {
         replacements.put("{teamName}", displayName)
         replacements.put("{teamLetter}", if (null == team) "" else team.getColor().chat().toString() + (displayName.substring(0, 1)))
         replacements.put("{teamColor}", if (null == team) "" else team.getColor().chat().toString())
+        // upper-case tag such as [RED], for tab list prefixes
+        replacements.put("{teamTag}", if (null == team) "" else "[" + displayName.uppercase() + "]")
         return replacements
     }
 

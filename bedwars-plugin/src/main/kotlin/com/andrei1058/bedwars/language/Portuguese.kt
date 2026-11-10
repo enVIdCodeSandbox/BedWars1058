@@ -338,7 +338,7 @@ open class Portuguese : Language(BedWars.plugin, "pt") {
         // player playing
         yml.addDefault(Messages.FORMATTING_SB_TAB_PLAYING_HEADER, java.util.List.of("                                                                                                        ", "&a{serverIp}", "&7{date}", "&7Map: &f{map} &7Mode: &f{group}", "", "{nextEvent} in {time}", ""))
         yml.addDefault(Messages.FORMATTING_SB_TAB_PLAYING_FOOTER, java.util.List.of("", "&fYou are playing on the {teamColor}{teamName} Team", "&a{serverIp}", "&fPowered by {poweredBy}", ""))
-        yml.addDefault(Messages.FORMATTING_SB_TAB_PLAYING_PREFIX, java.util.List.of("{teamColor}{teamName} "))
+        yml.addDefault(Messages.FORMATTING_SB_TAB_PLAYING_PREFIX, java.util.List.of("{teamColor}{teamTag} "))
         yml.addDefault(Messages.FORMATTING_SB_TAB_PLAYING_SUFFIX, java.util.List.of(" {vPrefix}", " {level}"))
         // player eliminated - playing state
         yml.addDefault(Messages.FORMATTING_SB_TAB_PLAYING_ELM_HEADER, java.util.List.of("                                                                                                        ", "&a{serverIp}", "&7{date}", "&7Map: &f{map} &7Mode: &f{group}", "", "{nextEvent} in {time}", "", "&7&oAYou've been eliminated,&f&oAYou've been eliminated"))
