@@ -516,7 +516,15 @@ open class BwSidebar(private val player: Player) : ISidebar {
     init {
         nextEventDateFormat = SimpleDateFormat(getMsg(player, Messages.FORMATTING_SCOREBOARD_NEXEVENT_TIMER))
         nextEventDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"))
-        dateFormat = SimpleDateFormat(getMsg(player, Messages.FORMATTING_SCOREBOARD_DATE))
+        // one date format for every language (config.yml, scoreboard-settings.date-format); empty = language file
+        val configuredDate: String? = config.getYml().getString("scoreboard-settings.date-format", "MM/dd/yyyy")
+        var chosenDate: SimpleDateFormat
+        try {
+            chosenDate = SimpleDateFormat(if (configuredDate == null || configuredDate.isEmpty()) getMsg(player, Messages.FORMATTING_SCOREBOARD_DATE) else configuredDate)
+        } catch (invalid: IllegalArgumentException) {
+            chosenDate = SimpleDateFormat(getMsg(player, Messages.FORMATTING_SCOREBOARD_DATE))
+        }
+        dateFormat = chosenDate
         this.tabList = BwTabList(this)
         // Persistent placeholders
         val poweredBy = BedWars.config.getString(ConfigPath.GENERAL_CONFIG_PLACEHOLDERS_REPLACEMENTS_POWERED_BY)

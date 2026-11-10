@@ -301,7 +301,8 @@ open class BwTabList(private val sidebar: BwSidebar) {
             var string = string0
             if (ensureTeamTag) {
                 // [RANK] [TEAM] name: the team tag goes right after the rank when the prefix has one
-                string = if (string.contains("{vPrefix}")) string.replace("{vPrefix}", "{vPrefix}{teamColor}{teamTag} ") else "{teamColor}{teamTag} " + string
+                val tag = BedWars.config.getYml().getString("scoreboard-settings.tab-list.team-tag", "{teamLetter} ")
+                string = if (string.contains("{vPrefix}")) string.replace("{vPrefix}", "{vPrefix}" + tag) else tag + string
             }
             if (teamPrefix && !string.endsWith("{teamColor}")) {
                 // the last colour code of the prefix is the colour of the player's name in the tab list
