@@ -285,6 +285,7 @@ open class BwTabList(private val sidebar: BwSidebar) {
         var strings = Language.getList(sidebar.getPlayer(), path)
         // the in-game tab prefix of alive players always shows the team, even if the language file does not mention it
         val ensureTeamTag: Boolean = null != replacements && path == Messages.FORMATTING_SB_TAB_PLAYING_PREFIX && strings.stream().noneMatch({ l -> l.contains("{team") })
+        val teamPrefix: Boolean = null != replacements && path == Messages.FORMATTING_SB_TAB_PLAYING_PREFIX
         if (ensureTeamTag && strings.isEmpty()) {
             strings = java.util.List.of("")
         }
@@ -299,7 +300,12 @@ open class BwTabList(private val sidebar: BwSidebar) {
         for (string0 in Language.getList(sidebar.getPlayer(), path)) {
             var string = string0
             if (ensureTeamTag) {
-                string = "{teamColor}{teamTag} " + string
+                // [RANK] [TEAM] name: the team tag goes right after the rank when the prefix has one
+                string = if (string.contains("{vPrefix}")) string.replace("{vPrefix}", "{vPrefix}{teamColor}{teamTag} ") else "{teamColor}{teamTag} " + string
+            }
+            if (teamPrefix && !string.endsWith("{teamColor}")) {
+                // the last colour code of the prefix is the colour of the player's name in the tab list
+                string = string + "{teamColor}"
             }
             var parsed = string.replace("{vPrefix}", BedWars.getChatSupport().getPrefix(targetPlayer)).replace("{vSuffix}", BedWars.getChatSupport().getSuffix(targetPlayer))
             if (null != replacements) {

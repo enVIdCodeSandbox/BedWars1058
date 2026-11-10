@@ -201,6 +201,7 @@ open class BwSidebar(private val player: Player) : ISidebar {
         }
         if (hasNoArena()) {
             providers.add(PlaceholderProvider("{on}", { Bukkit.getOnlinePlayers().size.toString() }))
+            providers.add(PlaceholderProvider("{tabStatus}", { "&fOnline: &a" + Bukkit.getOnlinePlayers().size }))
             val persistentStats: PlayerStats? = BedWars.getStatsManager().get(player.getUniqueId())
             //noinspection ConstantConditions
             if (null != persistentStats) {
@@ -217,6 +218,7 @@ open class BwSidebar(private val player: Player) : ISidebar {
             providers.add(PlaceholderProvider("{on}", { arena!!.getPlayers()!!.size.toString() }))
             providers.add(PlaceholderProvider("{max}", { arena!!.getMaxPlayers().toString() }))
             providers.add(PlaceholderProvider("{nextEvent}", this::getNextEventName))
+            providers.add(PlaceholderProvider("{tabStatus}", this::buildTabStatus))
             if (arena!!.isSpectator(player)) {
                 val lang = getPlayerLanguage(player)
                 val targetFormat = lang.m(Messages.FORMAT_SPECTATOR_TARGET)
@@ -352,6 +354,37 @@ open class BwSidebar(private val player: Player) : ISidebar {
         return null == arena
     }
 
+    /** One compact status line for the tab footer, in the style of the rest of the tab list. */
+    private fun buildTabStatus(): String {
+        if (null == arena) {
+            return ""
+        }
+        val map = "&a" + arena.getDisplayName()
+        var out: String
+        if (arena.isSpectator(player)) {
+            out = "&7Spectating &8| " + map
+        } else {
+            when (arena.getStatus()) {
+                GameState.waiting -> {
+                    out = "&fWaiting for players &8| &a" + arena.getPlayers().size() + "&7/&a" + arena.getMaxPlayers()
+                }
+                GameState.starting -> {
+                    val left: String = if (arena.getStartingTask() == null) "" else (arena.getStartingTask().getCountdown() + 1).toString()
+                    out = "&fStarting in &a" + left + "s &8| &a" + arena.getPlayers().size() + "&7/&a" + arena.getMaxPlayers()
+                }
+                GameState.playing -> {
+                    val team: ITeam? = arena.getTeam(player)
+                    val teamPart: String = if (null == team) "" else " &8| " + team.getColor().chat() + team.getDisplayName(getPlayerLanguage(player)) + " Team"
+                    out = map + teamPart + " &8| &f" + getNextEventName() + " &a" + getNextEventTime()
+                }
+                else -> {
+                    out = "&cGame over"
+                }
+            }
+        }
+        return org.bukkit.ChatColor.translateAlternateColorCodes('&', out)
+    }
+
     // Provide header and footer for current game state
     private fun assignTabHeaderFooter() {
         if (!config.getBoolean(ConfigPath.SB_CONFIG_TAB_HEADER_FOOTER_ENABLE)) {
@@ -431,7 +464,14 @@ open class BwSidebar(private val player: Player) : ISidebar {
                 }
             }
         }
-        this.headerFooter = TabHeaderFooter(this.normalizeLines(lang.l(headerPath)), this.normalizeLines(lang.l(footerPath)), getPlaceholders(this.getPlayer()))
+        // empty lists fall back to the per-state texts of the language file
+        var header = translateColors(config.getYml().getStringList(ConfigPath.SB_CONFIG_TAB_HEADER_FOOTER_ENABLE.replace(".enable", ".header")))
+        var footer = translateColors(config.getYml().getStringList(ConfigPath.SB_CONFIG_TAB_HEADER_FOOTER_ENABLE.replace(".enable", ".footer")))
+        if (header.isEmpty() && footer.isEmpty()) {
+            header = lang.l(headerPath)
+            footer = lang.l(footerPath)
+        }
+        this.headerFooter = TabHeaderFooter(this.normalizeLines(header), this.normalizeLines(footer), getPlaceholders(this.getPlayer()))
         SidebarManager.getInstance()!!.sendHeaderFooter(player, headerFooter.unchecked())
     }
 
@@ -492,6 +532,15 @@ open class BwSidebar(private val player: Player) : ISidebar {
             override fun getLine(): String {
                 return ""
             }
+        }
+
+        @JvmStatic
+        private fun translateColors(lines: MutableList<String>): MutableList<String> {
+            val out: MutableList<String> = ArrayList(lines.size())
+            for (l in lines) {
+                out.add(org.bukkit.ChatColor.translateAlternateColorCodes('&', l))
+            }
+            return out
         }
     }
 }
