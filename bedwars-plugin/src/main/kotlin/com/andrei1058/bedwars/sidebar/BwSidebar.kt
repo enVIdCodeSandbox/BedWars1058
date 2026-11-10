@@ -157,11 +157,15 @@ open class BwSidebar(private val player: Player) : ISidebar {
             // Add the line to the sidebar
             val finalTemp = line
             val divided = finalTemp.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+            // {comma} is a comma that does not split the line into animation frames
+            for (i in 0 until divided.size) {
+                divided[i] = divided[i].replace("{comma}", ",")
+            }
             var sidebarLine: SidebarLine
             if (divided.size > 1) {
                 sidebarLine = normalizeTitle(Arrays.asList(*divided))
             } else {
-                sidebarLine = BwSidebarLine(finalTemp, scoreLine)
+                sidebarLine = BwSidebarLine(finalTemp.replace("{comma}", ","), scoreLine)
             }
             lines.add(sidebarLine)
         }
@@ -201,7 +205,7 @@ open class BwSidebar(private val player: Player) : ISidebar {
         }
         if (hasNoArena()) {
             providers.add(PlaceholderProvider("{on}", { Bukkit.getOnlinePlayers().size.toString() }))
-            providers.add(PlaceholderProvider("{tabStatus}", { "&fOnline: &a" + Bukkit.getOnlinePlayers().size }))
+            providers.add(PlaceholderProvider("{tabStatus}", { org.bukkit.ChatColor.translateAlternateColorCodes('&', "&fOnline: &a" + Bukkit.getOnlinePlayers().size) }))
             val persistentStats: PlayerStats? = BedWars.getStatsManager().get(player.getUniqueId())
             //noinspection ConstantConditions
             if (null != persistentStats) {
@@ -222,29 +226,29 @@ open class BwSidebar(private val player: Player) : ISidebar {
             if (arena!!.isSpectator(player)) {
                 val lang = getPlayerLanguage(player)
                 val targetFormat = lang.m(Messages.FORMAT_SPECTATOR_TARGET)
-                providers.add(PlaceholderProvider("{spectatorTarget}", lambda6@{
+                providers.add(PlaceholderProvider("{spectatorTarget}", lambda7@{
                     if (null == player.getSpectatorTarget() || player.getSpectatorTarget() !is Player) {
-                        return@lambda6 ""
+                        return@lambda7 ""
                     }
                     val target = player.getSpectatorTarget() as Player
                     val targetTeam: ITeam? = arena!!.getTeam(target)
                     if (null == targetTeam) {
-                        return@lambda6 ""
+                        return@lambda7 ""
                     }
                     targetFormat.replace("{targetTeamColor}", targetTeam.getColor().chat().toString()).replace("{targetDisplayName}", target.getDisplayName()).replace("{targetName}", target.getDisplayName()).replace("{targetTeamName}", targetTeam.getDisplayName(lang))
                 }))
             }
-            providers.add(PlaceholderProvider("{time}", lambda7@{
+            providers.add(PlaceholderProvider("{time}", lambda8@{
                 val status = this.arena!!.getStatus()
                 if (status == GameState.playing || status == GameState.restarting) {
-                    return@lambda7 getNextEventTime()
+                    return@lambda8 getNextEventTime()
                 } else {
                     if (status == GameState.starting) {
                         if (arena!!.getStartingTask() != null) {
-                            return@lambda7 (arena!!.getStartingTask()!!.getCountdown() + 1).toString()
+                            return@lambda8 (arena!!.getStartingTask()!!.getCountdown() + 1).toString()
                         }
                     }
-                    return@lambda7 dateFormat.format(Date(System.currentTimeMillis()))
+                    return@lambda8 dateFormat.format(Date(System.currentTimeMillis()))
                 }
             }))
             if (null != arena!!.getStatsHolder()) {
@@ -275,12 +279,12 @@ open class BwSidebar(private val player: Player) : ISidebar {
                     result
                 }))
                 if (isMember) {
-                    providers.add(PlaceholderProvider("{teamStatus}", lambda11@{
+                    providers.add(PlaceholderProvider("{teamStatus}", lambda12@{
                         if (currentTeam.isBedDestroyed()) {
                             if (currentTeam.getSize() > 0) {
-                                return@lambda11 getMsg(getPlayer(), Messages.FORMATTING_SCOREBOARD_BED_DESTROYED).replace("{remainingPlayers}", currentTeam.getSize().toString())
+                                return@lambda12 getMsg(getPlayer(), Messages.FORMATTING_SCOREBOARD_BED_DESTROYED).replace("{remainingPlayers}", currentTeam.getSize().toString())
                             }
-                            return@lambda11 getMsg(getPlayer(), Messages.FORMATTING_SCOREBOARD_TEAM_ELIMINATED)
+                            return@lambda12 getMsg(getPlayer(), Messages.FORMATTING_SCOREBOARD_TEAM_ELIMINATED)
                         }
                         getMsg(getPlayer(), Messages.FORMATTING_SCOREBOARD_TEAM_ALIVE)
                     }))
@@ -546,7 +550,8 @@ open class BwSidebar(private val player: Player) : ISidebar {
         private fun translateColors(lines: MutableList<String>): MutableList<String> {
             val out: MutableList<String> = ArrayList(lines.size())
             for (l in lines) {
-                out.add(org.bukkit.ChatColor.translateAlternateColorCodes('&', l))
+                // tab header/footer lines are never animations: keep their commas
+                out.add(org.bukkit.ChatColor.translateAlternateColorCodes('&', l).replace(",", "{comma}"))
             }
             return out
         }
