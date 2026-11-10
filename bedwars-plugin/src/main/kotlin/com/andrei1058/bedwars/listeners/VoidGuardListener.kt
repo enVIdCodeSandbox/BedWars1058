@@ -7,7 +7,6 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.HashSet
 import org.bukkit.Chunk
-import org.bukkit.ChunkSnapshot
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -81,15 +80,14 @@ open class VoidGuardListener : Listener {
         if (!chunk.isLoaded()) {
             return
         }
-        val snap = chunk.getChunkSnapshot()
         val bottom: Int = minHeight(world)
         val top: Int = world.getMaxHeight()
         for (x in 0 until 16) {
             for (z in 0 until 16) {
                 for (y in bottom until top) {
-                    val m = snap.getBlockType(x, y, z)
-                    if (m != Material.AIR) {
-                        chunk.getBlock(x, y, z).setType(Material.AIR, false)
+                    val block = chunk.getBlock(x, y, z)
+                    if (block.getType() != Material.AIR) {
+                        block.setType(Material.AIR, false)
                     }
                 }
             }
