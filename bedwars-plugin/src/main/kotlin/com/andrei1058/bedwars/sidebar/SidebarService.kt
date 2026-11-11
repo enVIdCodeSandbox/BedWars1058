@@ -24,7 +24,8 @@ import com.andrei1058.bedwars.api.util.unchecked
 
 open class SidebarService private constructor() : ISidebarService {
     private val sidebarHandler: SidebarManager
-    private val sidebars: HashMap<UUID, BwSidebar> = HashMap()
+    // the title/placeholder refresh tasks iterate this off the main thread while players join and leave
+    private val sidebars: java.util.concurrent.ConcurrentHashMap<UUID, BwSidebar> = java.util.concurrent.ConcurrentHashMap()
 
     override fun giveSidebar(player: Player, arena: IArena?, delay: Boolean) {
         var sidebar: BwSidebar? = sidebars.getOrDefault(player.getUniqueId(), null)
