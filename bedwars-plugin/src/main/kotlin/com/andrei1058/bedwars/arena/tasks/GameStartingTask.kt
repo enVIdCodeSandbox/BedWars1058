@@ -137,11 +137,21 @@ open class GameStartingTask(arena: Arena) : Runnable, StartingTask {
             for (player in getArena().getPlayers()!!) {
                 val playerLang = Language.getPlayerLanguage(player)
                 val titleSubtitle = Language.getCountDownTitle(playerLang, getCountdown())
-                nms.sendTitle(player, titleSubtitle[0], titleSubtitle[1], 0, 20, 10)
+                nms.sendTitle(player, titleSubtitle[0], legacyDigits(titleSubtitle[1]), 0, 20, 10)
                 player.sendMessage(getMsg(player, Messages.ARENA_STATUS_START_COUNTDOWN_CHAT).replace("{time}", getCountdown().toString()))
             }
         }
         countdown--
+    }
+
+    /**
+     * The 1.8 font has no circled digits (the default countdown uses them for 5 to 1): show plain digits there.
+     */
+    private fun legacyDigits(text: String?): String {
+        if (nms.getVersion() > 0 || text == null) {
+            return text
+        }
+        return text.replace("\u2776", "1").replace("\u2777", "2").replace("\u2778", "3").replace("\u2779", "4").replace("\u277A", "5")
     }
 
     //Spawn players
