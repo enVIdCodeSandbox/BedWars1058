@@ -244,7 +244,7 @@ open class BedWars : JavaPlugin() {
             }, 1L)
         }
         // Register events
-        registerEvents(EnderPearlLanded(), QuitAndTeleportListener(), BreakPlace(), DamageDeathMove(), Inventory(), Interact(), RefreshGUI(), HungerWeatherSpawn(), CmdProcess(), FireballListener(), EggBridge(), SpectatorListeners(), BaseListener(), TargetListener(), LangListener(), Warnings(this), ChatAFK(), GameEndListener(), DefaultStatsHandler())
+        registerEvents(EnderPearlLanded(), QuitAndTeleportListener(), BreakPlace(), DamageDeathMove(), Inventory(), com.andrei1058.bedwars.listeners.ArmorGuard(), Interact(), RefreshGUI(), HungerWeatherSpawn(), CmdProcess(), FireballListener(), EggBridge(), SpectatorListeners(), BaseListener(), TargetListener(), LangListener(), Warnings(this), ChatAFK(), GameEndListener(), DefaultStatsHandler())
         if (BedWars.config.getBoolean(ConfigPath.GENERAL_CONFIGURATION_HEAL_POOL_ENABLE)) {
             registerEvents(HealPoolListner())
         }
