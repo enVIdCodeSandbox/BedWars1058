@@ -221,6 +221,7 @@ open class BwSidebar(private val player: Player) : ISidebar {
         } else {
             providers.add(PlaceholderProvider("{on}", { arena!!.getPlayers()!!.size.toString() }))
             providers.add(PlaceholderProvider("{max}", { arena!!.getMaxPlayers().toString() }))
+            providers.add(PlaceholderProvider("{group}", { arena!!.getDisplayGroup(player) }))
             providers.add(PlaceholderProvider("{nextEvent}", this::getNextEventName))
             providers.add(PlaceholderProvider("{tabStatus}", this::buildTabStatus))
             if (arena!!.isSpectator(player)) {
@@ -389,6 +390,29 @@ open class BwSidebar(private val player: Player) : ISidebar {
         return org.bukkit.ChatColor.translateAlternateColorCodes('&', out)
     }
 
+    /** True when the game mode is enabled in the config and the given lines do not show it already. */
+    private fun showGameMode(lines: MutableList<String>): Boolean {
+        return config.getYml().getBoolean("scoreboard-settings.game-mode.enable", true) && lines.stream().noneMatch({ l -> l.contains("{group}") })
+    }
+
+    /** The lines with the game mode line right under the date line, or on top when there is no date. */
+    private fun withGameMode(lines: MutableList<String>): MutableList<String> {
+        val format: String? = config.getYml().getString("scoreboard-settings.game-mode.format", "&fMode: &a{group}")
+        if (format == null || format.isEmpty()) {
+            return lines
+        }
+        val out: MutableList<String> = ArrayList(lines)
+        var at: Int = 0
+        for (i in 0 until out.size()) {
+            if (out.get(i).contains("{date}")) {
+                at = i + 1
+                break
+            }
+        }
+        out.add(at, org.bukkit.ChatColor.translateAlternateColorCodes('&', format).replace(",", "{comma}"))
+        return out
+    }
+
     // Provide header and footer for current game state
     private fun assignTabHeaderFooter() {
         if (!config.getBoolean(ConfigPath.SB_CONFIG_TAB_HEADER_FOOTER_ENABLE)) {
@@ -474,6 +498,9 @@ open class BwSidebar(private val player: Player) : ISidebar {
         if (header.isEmpty() && footer.isEmpty()) {
             header = lang.l(headerPath)
             footer = lang.l(footerPath)
+        }
+        if (null != arena && showGameMode(header) && showGameMode(footer)) {
+            header = withGameMode(header)
         }
         this.headerFooter = TabHeaderFooter(this.normalizeLines(header), this.normalizeLines(footer), getPlaceholders(this.getPlayer()))
         SidebarManager.getInstance()!!.sendHeaderFooter(player, headerFooter.unchecked())

@@ -113,6 +113,9 @@ open class SidebarService private constructor() : ISidebarService {
             lines = ArrayList()
         }
         lines = lines.subList(1, lines.size)
+        if (null != arena) {
+            lines = withGameMode(lines)
+        }
         // at this point we are sure we need a sidebar instance
         var newlyAdded: Boolean = false
         if (null == sidebar) {
@@ -128,6 +131,28 @@ open class SidebarService private constructor() : ISidebarService {
         if (newlyAdded) {
             sidebars.put(player.getUniqueId(), sidebar)
         }
+    }
+
+    /**
+     * Adds the game mode (the arena group) under the date line when the text of the sidebar does not show it.
+     * Configurable with scoreboard-settings.game-mode.
+     */
+    private fun withGameMode(lines: MutableList<String>): MutableList<String> {
+        val yml = BedWars.config.getYml()
+        val format: String? = yml.getString("scoreboard-settings.game-mode.format", "&fMode: &a{group}")
+        if (!yml.getBoolean("scoreboard-settings.game-mode.enable", true) || format == null || format.isEmpty() || lines.stream().anyMatch({ l -> l.contains("{group}") }) || lines.size() >= 15) {
+            return lines
+        }
+        val out: MutableList<String> = ArrayList(lines)
+        var at: Int = 0
+        for (i in 0 until out.size()) {
+            if (out.get(i).contains("{date}")) {
+                at = i + 1
+                break
+            }
+        }
+        out.add(at, format.replace(",", "{comma}"))
+        return out
     }
 
     /**
