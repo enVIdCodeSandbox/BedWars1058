@@ -286,9 +286,11 @@ open class BwTabList(private val sidebar: BwSidebar) {
      * The rank as the player's own tab list name shows it, with the colours it was given there (for example red
      * brackets and a white rank). Falls back to the chat plugin prefix when the name has no recognisable rank.
      */
-    private fun rankOf(player: Player): String {
+    private fun rankOf(player: Player, replacements: MutableMap<String, String>): String {
         val current = player.getPlayerListName()
-        if (current != LAST_SET_LIST_NAME.get(player.getUniqueId())) {
+        val lastSet: String? = LAST_SET_LIST_NAME.get(player.getUniqueId())
+        // being taken for the player's own name and its team tag from piling up in the rank
+        if (lastSet == null || org.bukkit.ChatColor.stripColor(current) != org.bukkit.ChatColor.stripColor(lastSet)) {
             ORIGINAL_LIST_NAME.put(player.getUniqueId(), current)
         }
         val original = ORIGINAL_LIST_NAME.getOrDefault(player.getUniqueId(), current)
@@ -297,7 +299,18 @@ open class BwTabList(private val sidebar: BwSidebar) {
             return BedWars.getChatSupport().getPrefix(player)
         }
         // the colour codes right before the name belong to the name, not to the rank
-        val rank = original.substring(0, at)
+        var rank = original.substring(0, at)
+        // a team tag from an earlier pass is not part of the rank
+        var tag: String? = BedWars.config.getYml().getString("scoreboard-settings.tab-list.team-tag", "{teamLetter} ")
+        if (tag != null && !tag.isEmpty()) {
+            for (entry in replacements.entries) {
+                tag = tag.replace(entry.key, entry.value)
+            }
+            val resolved = org.bukkit.ChatColor.translateAlternateColorCodes('&', tag)
+            while (!resolved.isEmpty() && rank.contains(resolved)) {
+                rank = rank.replace(resolved, "")
+            }
+        }
         return rank.replace("(?i)(§[0-9a-fk-or])+\$".toRegex(), "")
     }
 
@@ -313,7 +326,7 @@ open class BwTabList(private val sidebar: BwSidebar) {
             return
         }
         val tag: String? = BedWars.config.getYml().getString("scoreboard-settings.tab-list.team-tag", "{teamLetter} ")
-        val rank = rankOf(player)
+        val rank = rankOf(player, replacements)
         var listName = format.replace("{teamTag}", tag ?: "").replace("{vPrefix}", "&f" + rank + "&f").replace("{vSuffix}", "&f" + BedWars.getChatSupport().getSuffix(player)).replace("{name}", player.getName())
         for (entry in replacements.entries) {
             listName = listName.replace(entry.key, entry.value)
