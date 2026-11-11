@@ -348,6 +348,11 @@ open class BedWars : JavaPlugin() {
         TeamSelectorModule.enable()
         /* Play menu (/bw play) */
         PlayMenuModule.enable()
+        try {
+            com.andrei1058.bedwars.management.Management.start(this)
+        } catch (t: Throwable) {
+            getLogger().log(java.util.logging.Level.SEVERE, "Arena management could not start; the rest of BedWars1058 keeps working.", t)
+        }
         /* PlaceholderAPI Support */
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             out.info("Hooked into PlaceholderAPI support!")
@@ -506,6 +511,7 @@ open class BedWars : JavaPlugin() {
 
     override fun onDisable() {
         shuttingDown = true
+        com.andrei1058.bedwars.management.Management.stop()
         if (!serverSoftwareSupport) {
             return
         }
