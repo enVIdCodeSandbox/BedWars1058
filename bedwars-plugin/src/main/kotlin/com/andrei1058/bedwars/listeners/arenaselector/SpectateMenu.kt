@@ -51,9 +51,22 @@ object SpectateMenu {
      * @param arenaName only games of this arena, or null for every arena.
      */
     @JvmStatic
-    fun spectatable(arenaName: String?): MutableList<IArena> {
+    fun spectatable(arenaName: String): MutableList<IArena> {
+        return spectatable(arenaName, null)
+    }
+
+    /**
+     * Running games that can be spectated by a player, who may still be in another game (their own ended, or they
+     * are spectating one). That game itself is left out.
+     */
+    @JvmStatic
+    fun spectatable(arenaName: String?, viewer: Player?): MutableList<IArena> {
+        val current: IArena? = if (viewer == null) null else Arena.getArenaByPlayer(viewer)
         val list: MutableList<IArena> = ArrayList()
         for (a in Arena.getArenas()) {
+            if (a === current) {
+                continue
+            }
             if (a.getStatus() != GameState.playing) {
                 continue
             }
@@ -76,7 +89,12 @@ object SpectateMenu {
      */
     @JvmStatic
     fun open(p: Player, arenaName: String?): Boolean {
-        val games = spectatable(arenaName)
+        if (!canLeaveForSpectating(p)) {
+            p.sendMessage(Language.getMsg(p, MSG_DENIED))
+            Sounds.playSound("spectate-denied", p)
+            return false
+        }
+        val games = spectatable(arenaName, p)
         if (games.isEmpty()) {
             p.sendMessage(Language.getMsg(p, MSG_NONE))
             Sounds.playSound("spectate-denied", p)
@@ -84,7 +102,7 @@ object SpectateMenu {
         }
         // a single game needs no menu
         if (games.size() == 1 && arenaName != null) {
-            if (games.get(0).addSpectator(p, false, null)) {
+            if (spectate(p, games.get(0))) {
                 Sounds.playSound("spectate-allowed", p)
             } else {
                 p.sendMessage(Language.getMsg(p, MSG_DENIED))
@@ -118,6 +136,47 @@ object SpectateMenu {
         p.openInventory(inv)
         Sounds.playSound("arena-selector-open", p)
         return true
+    }
+
+    /**
+     * Whether the player may switch to spectating another game: not in a game, spectating one, or in one that
+     * has ended. Somebody still fighting in a running game has to leave it first.
+     */
+    @JvmStatic
+    fun canLeaveForSpectating(p: Player): Boolean {
+        val current: IArena? = Arena.getArenaByPlayer(p)
+        if (current == null || current.isSpectator(p)) {
+            return true
+        }
+        return current.getStatus() == GameState.restarting
+    }
+
+    /**
+     * Spectates a game, leaving the one the player is still in (a spectator of another game, or a player whose
+     * game ended) first, so several games can run at once and a player can watch another one when theirs is over.
+     *
+     * @return false when the game refused the spectator; the player stays where they were in that case.
+     */
+    @JvmStatic
+    fun spectate(p: Player, game: IArena?): Boolean {
+        if (game == null || game.getStatus() != GameState.playing) {
+            return false
+        }
+        val current: IArena? = Arena.getArenaByPlayer(p)
+        if (current === game) {
+            return false
+        }
+        if (current != null) {
+            if (!canLeaveForSpectating(p)) {
+                return false
+            }
+            if (current.isSpectator(p)) {
+                current.removeSpectator(p, false)
+            } else {
+                current.removePlayer(p, false)
+            }
+        }
+        return game.addSpectator(p, false, null)
     }
 
     @JvmStatic

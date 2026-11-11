@@ -57,7 +57,7 @@ open class CmdSpectate(parent: ParentCommand, name: String) : SubCommand(parent,
             return false
         }
         val p = s as Player
-        if (Arena.isInArena(p)) {
+        if (!SpectateMenu.canLeaveForSpectating(p)) {
             return false
         }
         if (SetupSession.isInSetupSession(p.getUniqueId())) {

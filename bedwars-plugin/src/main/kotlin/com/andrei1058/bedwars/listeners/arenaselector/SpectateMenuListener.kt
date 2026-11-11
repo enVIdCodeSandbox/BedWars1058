@@ -32,9 +32,9 @@ open class SpectateMenuListener : Listener {
         if (!data.startsWith(SpectateMenu.DATA_PREFIX)) {
             return
         }
-        val game: IArena? = Arena.getArenaByIdentifier(data.substring(SpectateMenu.DATA_PREFIX.length()))
+        val game = Arena.getArenaByIdentifier(data.substring(SpectateMenu.DATA_PREFIX.length()))
         player.closeInventory()
-        if (game != null && game.getStatus() == GameState.playing && game.addSpectator(player, false, null)) {
+        if (SpectateMenu.spectate(player, game)) {
             Sounds.playSound("spectate-allowed", player)
         } else {
             player.sendMessage(Language.getMsg(player, SpectateMenu.MSG_DENIED))
