@@ -72,21 +72,12 @@ open class v1_8_R3(pl: Plugin, name: String) : VersionSupport(pl, name) {
     }
 
     override fun sendTitle(p: Player, title: String?, subtitle: String?, fadeIn: Int, stay: Int, fadeOut: Int) {
-        if (title != null) {
-            if (!title.isEmpty()) {
-                val bc = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + title + "\"}")
-                val tit = PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, bc)
-                val length = PacketPlayOutTitle(fadeIn, stay, fadeOut)
-                (p as CraftPlayer).getHandle().playerConnection.sendPacket(tit)
-                (p as CraftPlayer).getHandle().playerConnection.sendPacket(length)
-            }
-        }
-        if (subtitle != null) {
-            val bc = IChatBaseComponent.ChatSerializer.a("{\"text\": \"" + subtitle + "\"}")
-            val tit = PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, bc)
-            val length = PacketPlayOutTitle(fadeIn, stay, fadeOut)
-            (p as CraftPlayer).getHandle().playerConnection.sendPacket(tit)
-            (p as CraftPlayer).getHandle().playerConnection.sendPacket(length)
+        val connection = (p as CraftPlayer).getHandle().playerConnection
+        // a 1.8 client only shows a subtitle together with a title, and takes the timings that arrived before it
+        connection.sendPacket(PacketPlayOutTitle(fadeIn, stay, fadeOut))
+        connection.sendPacket(PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.TITLE, IChatBaseComponent.ChatSerializer.a(titleJson(if (title == null || title.isEmpty()) " " else title))))
+        if (subtitle != null && !subtitle.isEmpty()) {
+            connection.sendPacket(PacketPlayOutTitle(PacketPlayOutTitle.EnumTitleAction.SUBTITLE, IChatBaseComponent.ChatSerializer.a(titleJson(subtitle))))
         }
     }
 
@@ -728,6 +719,11 @@ open class v1_8_R3(pl: Plugin, name: String) : VersionSupport(pl, name) {
     }
 
     companion object {
+        @JvmStatic
+        private fun titleJson(text: String): String {
+            return "{\"text\": \"" + text.replace("\\", "\\\\").replace("\"", "\\\"") + "\"}"
+        }
+
         @JvmStatic
         private fun createArmorStand(name: String, loc: Location?): ArmorStand? {
             val a = loc!!.getWorld().spawn(loc, ArmorStand::class.java)
