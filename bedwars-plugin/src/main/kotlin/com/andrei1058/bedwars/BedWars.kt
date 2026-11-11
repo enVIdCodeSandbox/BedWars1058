@@ -496,9 +496,8 @@ open class BedWars : JavaPlugin() {
             nms.registerCommand("shout", ShoutCommand("shout"))
         }
         nms.registerCommand("rejoin", RejoinCommand("rejoin"))
-        if (!(nms.isBukkitCommandRegistered("leave") && getServerType() == ServerType.BUNGEE)) {
-            nms.registerCommand("leave", LeaveCommand("leave"))
-        }
+        // /leave and /l only exist when no other plugin has them (they are aliases of /bwleave)
+        nms.registerCommand("bwleave", LeaveCommand("bwleave"))
         if (getServerType() != ServerType.BUNGEE && BedWars.config.getBoolean(ConfigPath.GENERAL_ENABLE_PARTY_CMD)) {
             Bukkit.getLogger().info("Registering /party command..")
             nms.registerCommand("party", PartyCommand("party"))

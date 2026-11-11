@@ -26,6 +26,11 @@ import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.command.defaults.BukkitCommand
 import org.bukkit.entity.Player
 
+/**
+ * Takes /leave and /l to go back to the lobby, as the lowest priority: both are registered as aliases of this command,
+ * so any other plugin that has them keeps them (the command map never lets an alias replace a command that is already
+ * there, and lets a command registered later replace an alias).
+ */
 open class LeaveCommand(name: String) : BukkitCommand(name) {
     override fun execute(s: CommandSender, st: String, args: Array<String>): Boolean {
         if (s is ConsoleCommandSender) {
@@ -34,5 +39,9 @@ open class LeaveCommand(name: String) : BukkitCommand(name) {
         val p = s as Player
         Bukkit.dispatchCommand(p, "bw leave")
         return true
+    }
+
+    init {
+        setAliases(java.util.Arrays.asList("leave", "l"))
     }
 }
