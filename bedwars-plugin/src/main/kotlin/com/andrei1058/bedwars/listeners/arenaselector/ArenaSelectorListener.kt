@@ -45,6 +45,11 @@ open class ArenaSelectorListener : Listener {
             return
         }
         event.setCancelled(true)
+        val holder = BedWars.nms.getTopInventory(player).getHolder() as ArenaGUI.ArenaSelectorHolder
+        // still being filled: nothing can be clicked yet
+        if (!holder.isReady()) {
+            return
+        }
         val item: ItemStack? = event.getCurrentItem()
         if (item == null) {
             return
@@ -71,6 +76,11 @@ open class ArenaSelectorListener : Listener {
         if (arena == null) {
             return
         }
+        // never act on a game outside the group this menu was opened for
+        if (!ArenaGUI.groupMatches(holder.getGroup(), arena.getGroup())) {
+            Sounds.playSound("join-denied", player)
+            return
+        }
         val status = arena.getStatus()
         if (event.getClick() == ClickType.LEFT) {
             if ((status == GameState.waiting || status == GameState.starting) && arena.addPlayer(player, false)) {
@@ -80,12 +90,16 @@ open class ArenaSelectorListener : Listener {
                 player.sendMessage(Language.getMsg(player, Messages.ARENA_JOIN_DENIED_SELECTOR))
             }
         } else if (event.getClick() == ClickType.RIGHT) {
-            if (status == GameState.playing && arena.addSpectator(player, false, null)) {
-                Sounds.playSound("spectate-allowed", player)
-            } else {
-                player.sendMessage(Language.getMsg(player, Messages.ARENA_SPECTATE_DENIED_SELECTOR))
-                Sounds.playSound("spectate-denied", player)
-            }
+            // a second menu lists every running game of this map (of the menu's group), with its players
+            val mapName = arena.getArenaName()
+            val group = holder.getGroup()
+            player.closeInventory()
+            Bukkit.getScheduler().runTask(BedWars.plugin, Runnable {
+                if (player.isOnline()) {
+                    SpectateMenu.open(player, mapName, group)
+                }
+            })
+            return
         } else {
             // Incorrect click
             return

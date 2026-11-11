@@ -60,11 +60,20 @@ object SpectateMenu {
      * are spectating one). That game itself is left out.
      */
     @JvmStatic
-    fun spectatable(arenaName: String?, viewer: Player?): MutableList<IArena> {
+    fun spectatable(arenaName: String, viewer: Player?): MutableList<IArena> {
+        return spectatable(arenaName, null, viewer)
+    }
+
+    /** Like {@link #spectatable(String, Player)}, limited to the arena groups of [group] ("default" or null: all). */
+    @JvmStatic
+    fun spectatable(arenaName: String?, group: String?, viewer: Player?): MutableList<IArena> {
         val current: IArena? = if (viewer == null) null else Arena.getArenaByPlayer(viewer)
         val list: MutableList<IArena> = ArrayList()
         for (a in Arena.getArenas()) {
             if (a === current) {
+                continue
+            }
+            if (!com.andrei1058.bedwars.arena.ArenaGUI.groupMatches(group, a.getGroup())) {
                 continue
             }
             if (a.getStatus() != GameState.playing) {
@@ -88,13 +97,23 @@ object SpectateMenu {
      * @return false when there is nothing to spectate.
      */
     @JvmStatic
-    fun open(p: Player, arenaName: String?): Boolean {
+    fun open(p: Player, arenaName: String): Boolean {
+        return open(p, arenaName, null)
+    }
+
+    /**
+     * Opens the menu with every running game of an arena, within the given arena groups.
+     *
+     * @param group "default" or null for every group.
+     */
+    @JvmStatic
+    fun open(p: Player, arenaName: String?, group: String?): Boolean {
         if (!canLeaveForSpectating(p)) {
             p.sendMessage(Language.getMsg(p, MSG_DENIED))
             Sounds.playSound("spectate-denied", p)
             return false
         }
-        val games = spectatable(arenaName, p)
+        val games = spectatable(arenaName, group, p)
         if (games.isEmpty()) {
             p.sendMessage(Language.getMsg(p, MSG_NONE))
             Sounds.playSound("spectate-denied", p)
@@ -111,7 +130,7 @@ object SpectateMenu {
             return true
         }
         val size: Int = Math.min(54, Math.max(9, ((games.size() + 8) / 9) * 9))
-        val inv = Bukkit.createInventory(Holder(arenaName), size, Language.getMsg(p, MSG_TITLE))
+        val inv = Bukkit.createInventory(Holder(arenaName, group), size, Language.getMsg(p, MSG_TITLE))
         val material = BedWars.config.getString(ConfigPath.GENERAL_CONFIGURATION_ARENA_SELECTOR_STATUS_MATERIAL.replace("%path%", "playing"))
         val data: Short = BedWars.config.getInt(ConfigPath.GENERAL_CONFIGURATION_ARENA_SELECTOR_STATUS_DATA.replace("%path%", "playing")).toShort()
         // number games per arena so players can tell them apart
@@ -124,8 +143,19 @@ object SpectateMenu {
             val im = item.getItemMeta()
             im.setDisplayName(fill(Language.getMsg(p, MSG_ITEM_NAME), g, number))
             val lore: MutableList<String> = ArrayList()
+            var listsPlayers: Boolean = false
             for (line in Language.getList(p, MSG_ITEM_LORE)) {
-                lore.add(fill(line, g, number))
+                if (line.contains("{players}")) {
+                    lore.addAll(playerLines(g))
+                    listsPlayers = true
+                } else {
+                    lore.add(fill(line, g, number))
+                }
+            }
+            if (!listsPlayers) {
+                // language files saved by older versions have no {players} line: put the list before the last paragraph
+                val at: Int = lore.lastIndexOf("")
+                lore.addAll(if (at < 0) lore.size() else at, playerLines(g))
             }
             im.setLore(lore)
             item.setItemMeta(im)
@@ -178,6 +208,31 @@ object SpectateMenu {
         }
         return game.addSpectator(p, false, null)
     }
+    private const val MAX_LISTED_PLAYERS: Int = 16
+
+    /** The players of a game, one per line and in their team color, so a viewer can tell which game to spectate. */
+    @JvmStatic
+    private fun playerLines(g: IArena): MutableList<String> {
+        val lines: MutableList<String> = ArrayList()
+        lines.add("§7Playing:")
+        var shown: Int = 0
+        val players: MutableList<Player> = ArrayList(g.getPlayers())
+        for (pl in players) {
+            if (shown >= MAX_LISTED_PLAYERS) {
+                break
+            }
+            val team: com.andrei1058.bedwars.api.arena.team.ITeam? = g.getTeam(pl)
+            lines.add(" §8▪ " + (if (team == null) "§f" else team.getColor().chat().toString()) + pl.getName())
+            shown++
+        }
+        if (players.size() > shown) {
+            lines.add(" §8▪ §7+" + (players.size() - shown) + " more")
+        }
+        if (players.isEmpty()) {
+            lines.add(" §8▪ §7nobody")
+        }
+        return lines
+    }
 
     @JvmStatic
     private fun fill(s: String, g: IArena, number: Int): String {
@@ -200,7 +255,11 @@ object SpectateMenu {
         return (secs / 60).toString() + ":" + String.format("%02d", secs % 60)
     }
 
-    class Holder(@JvmField val arenaName: String) : InventoryHolder {
+    class Holder(@JvmField val arenaName: String, @JvmField val group: String) : InventoryHolder {
+        fun getGroup(): String {
+            return group
+        }
+
         fun getArenaName(): String {
             return arenaName
         }
