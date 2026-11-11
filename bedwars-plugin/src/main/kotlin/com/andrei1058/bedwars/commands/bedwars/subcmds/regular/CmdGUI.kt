@@ -41,8 +41,15 @@ open class CmdGUI(parent: ParentCommand, name: String) : SubCommand(parent, name
             return false
         }
         var group = "default"
-        if (args.size == 1) {
+        if (args.size >= 1) {
             group = args[0]
+            // an unknown group must not fall back to showing every arena
+            for (part in group.split("\\+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
+                if (!part.equals("default", ignoreCase = true) && !com.andrei1058.bedwars.commands.bedwars.MainCommand.isArenaGroup(part)) {
+                    p.sendMessage(com.andrei1058.bedwars.api.language.Language.getMsg(p, com.andrei1058.bedwars.api.language.Messages.COMMAND_JOIN_GROUP_OR_ARENA_NOT_FOUND).replace("{name}", part))
+                    return true
+                }
+            }
         }
         ArenaGUI.openGui(p, group)
         return true

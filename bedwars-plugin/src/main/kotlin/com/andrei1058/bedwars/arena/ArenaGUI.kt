@@ -61,20 +61,14 @@ object ArenaGUI {
             return
         }
         val ash = (BedWars.nms.getTopInventory(p)!!.getHolder() as ArenaSelectorHolder)
-        var arenas: MutableList<IArena>
-        if (ash.getGroup().equals("default", ignoreCase = true)) {
-            arenas = ArrayList(Arena.getArenas())
-        } else {
-            arenas = ArrayList()
-            // several groups can be combined with a plus, like in /bw join
-            val groups = ash.getGroup().split("\\+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            for (a in Arena.getArenas()) {
-                for (group in groups) {
-                    if (a.getGroup().equals(group, ignoreCase = true)) {
-                        arenas.add(a)
-                        break
-                    }
-                }
+        // nothing is listed before the menu is ready (see openGui), so no arena of another group can be clicked
+        if (!ash.isReady()) {
+            return
+        }
+        var arenas: MutableList<IArena> = ArrayList()
+        for (a in Arena.getArenas()) {
+            if (groupMatches(ash.getGroup(), a.getGroup())) {
+                arenas.add(a)
             }
         }
         arenas = Arena.getSorted(arenas)
@@ -168,15 +162,52 @@ object ArenaGUI {
                 x++
             }
         }
+        // item can be clicked, so a game of another group is never joined by accident.
         p.openInventory(inv)
-        refreshInv(p, null, 0)
-        //refresh.put(p, new Object[]{inv, group});
         Sounds.playSound("arena-selector-open", p)
+        Bukkit.getScheduler().runTask(BedWars.plugin, Runnable lambda7@{
+            if (!p.isOnline() || !(BedWars.nms.getTopInventory(p).getHolder() === ash)) {
+                return@lambda7
+            }
+            ash.setReady()
+            refreshInv(p, null, 0)
+        })
+    }
+
+    /**
+     * Whether an arena of group [arenaGroup] belongs to a menu or command for [spec]: "default" (or nothing) is every
+     * arena, otherwise one or several groups combined with a plus, like in /bw join.
+     */
+    @JvmStatic
+    fun groupMatches(spec: String?, arenaGroup: String?): Boolean {
+        if (spec == null || spec.isEmpty() || spec.equals("default", ignoreCase = true)) {
+            return true
+        }
+        if (arenaGroup == null) {
+            return false
+        }
+        for (group in spec.split("\\+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) {
+            if (group.equals("default", ignoreCase = true) || arenaGroup.equals(group, ignoreCase = true)) {
+                return true
+            }
+        }
+        return false
     }
 
     open class ArenaSelectorHolder(@JvmField var group: String) : InventoryHolder {
+        @JvmField var ready: Boolean = false
+
         open fun getGroup(): String {
             return group
+        }
+
+        /** False until the menu has been filled for its group. */
+        open fun isReady(): Boolean {
+            return ready
+        }
+
+        open fun setReady() {
+            ready = true
         }
 
         override fun getInventory(): Inventory? {
