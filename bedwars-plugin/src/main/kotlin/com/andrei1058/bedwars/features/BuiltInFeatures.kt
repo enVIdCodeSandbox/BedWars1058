@@ -1,5 +1,6 @@
 package com.andrei1058.bedwars.features
 
+import com.andrei1058.bedwars.features.arenajoinmessage.ArenaJoinMessagePlugin
 import com.andrei1058.bedwars.features.arenamanagement.ArenaManagementPlugin
 import com.andrei1058.bedwars.features.compass.BedWars1058Compass
 import com.andrei1058.bedwars.features.dragonfix.DragonFixPlugin
@@ -29,5 +30,6 @@ internal object BuiltInFeatures {
         FeatureManager.register(BedWars1058Compass())
         FeatureManager.register(BedWarsRevive())
         FeatureManager.register(MobSpawnPlugin())
+        FeatureManager.register(ArenaJoinMessagePlugin())
     }
 }
