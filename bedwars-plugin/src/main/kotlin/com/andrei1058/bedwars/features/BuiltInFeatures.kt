@@ -1,6 +1,7 @@
 package com.andrei1058.bedwars.features
 
 import com.andrei1058.bedwars.features.arenamanagement.ArenaManagementPlugin
+import com.andrei1058.bedwars.features.dragonfix.DragonFixPlugin
 import com.andrei1058.bedwars.features.easysetup.EasySetupPlugin
 import com.andrei1058.bedwars.features.generalfixes.GeneralFixesPlugin
 import com.andrei1058.bedwars.features.generatorfix.GeneratorFixPlugin
@@ -19,5 +20,6 @@ internal object BuiltInFeatures {
         // Gameplay.
         FeatureManager.register(GeneralFixesPlugin())
         FeatureManager.register(GeneratorFixPlugin())
+        FeatureManager.register(DragonFixPlugin())
     }
 }

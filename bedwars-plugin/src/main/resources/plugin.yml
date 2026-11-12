@@ -47,6 +47,12 @@ commands:
     description: Manage BedWars1058-GeneralFixes
     usage: /<command> [reload]
     aliases: [bwgf, bw1058fixes]
+  # DragonFix
+  bw-dragonfix:
+    description: Admin command for BedWars1058-DragonFix.
+    usage: /bw-dragonfix <reload | status | config ...>
+    aliases: [bwdf]
+    permission: dragonfix.admin
 permissions:
   # MapLoader
   bw1058maploader.admin:
@@ -67,4 +73,7 @@ permissions:
   # GeneralFixes
   bwfixes.admin:
     description: Allows /bwfixes reload
+    default: op
+  # DragonFix
+  dragonfix.admin:
     default: op
