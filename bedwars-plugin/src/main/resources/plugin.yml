@@ -9,5 +9,15 @@ softdepend: [Vault,PlaceholderAPI,Citizens,Parties,SlimeWorldManager,VipFeatures
 
 # Commands and permissions of the built-in features (see plugins/BedWars1058/Features).
 # The /bw and /party commands are registered by the plugin itself.
-commands: {}
-permissions: {}
+commands:
+  # MapLoader
+  bwloader:
+    description: Manage BedWars map loading
+    usage: /<command> help
+    aliases: [bwl, maploader, bedwarsloader]
+    permission: bw1058maploader.admin
+permissions:
+  # MapLoader
+  bw1058maploader.admin:
+    description: Use /bwloader (status, reload, config, migrate)
+    default: op
