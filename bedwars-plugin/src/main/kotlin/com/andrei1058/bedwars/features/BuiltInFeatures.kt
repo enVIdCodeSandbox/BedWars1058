@@ -5,6 +5,7 @@ import com.andrei1058.bedwars.features.dragonfix.DragonFixPlugin
 import com.andrei1058.bedwars.features.easysetup.EasySetupPlugin
 import com.andrei1058.bedwars.features.generalfixes.GeneralFixesPlugin
 import com.andrei1058.bedwars.features.generatorfix.GeneratorFixPlugin
+import com.andrei1058.bedwars.features.invisfix.InvisFixPlugin
 import com.andrei1058.bedwars.features.maploader.WorldLoaderPlugin
 import com.andrei1058.bedwars.features.multigroup.MultiGroupPlugin
 
@@ -21,5 +22,6 @@ internal object BuiltInFeatures {
         FeatureManager.register(GeneralFixesPlugin())
         FeatureManager.register(GeneratorFixPlugin())
         FeatureManager.register(DragonFixPlugin())
+        FeatureManager.register(InvisFixPlugin())
     }
 }

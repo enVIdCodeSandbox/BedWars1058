@@ -65,6 +65,9 @@ dependencies {
         exclude(group = "org.bstats", module = "bstats-bukkit")
         exclude(group = "net.byteflux", module = "libby-bukkit") // runtime-only for Citizens itself
     }
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0") {
+        isTransitive = false
+    }
     compileOnly("net.milkbowl.vault:VaultAPI:1.7") {
         exclude(group = "org.bukkit", module = "bukkit")
     }

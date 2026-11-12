@@ -70,6 +70,10 @@ allprojects {
         maven("https://repo.rapture.pw/repository/maven-snapshots/") {
             content { includeGroup("com.grinderwolf") }
         }
+        // ProtocolLib is optional at runtime (used by the built-in invisibility feature when installed).
+        maven("https://repo.dmulloy2.net/repository/public/") {
+            content { includeGroup("com.comphenix.protocol") }
+        }
         maven("https://repo.infernalsuite.com/repository/maven-snapshots/") {
             content { includeGroup("com.infernalsuite.aswm") }
         }
