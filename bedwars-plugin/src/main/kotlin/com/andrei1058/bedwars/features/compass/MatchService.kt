@@ -1,0 +1,63 @@
+package com.andrei1058.bedwars.features.compass
+
+import com.andrei1058.bedwars.api.arena.GameState
+import com.andrei1058.bedwars.api.arena.IArena
+import com.andrei1058.bedwars.api.arena.team.ITeam
+import org.bukkit.ChatColor
+import org.bukkit.entity.Player
+
+/*
+ * ================================ MAP OF THIS FILE (read this first) ================================
+ *   Every question about "where is this player in BedWars1058" goes through here, so the rest of the plugin never touches the API:
+ *   arenaOf / teamOf ........ which arena and team
+ *   isInMatch ............... inside a running match (the scope of the compass takeover)
+ *   isActivePlayer .......... a living participant (can buy / use things)
+ *   isBedDestroyed .......... decides quick communication vs tracker shop
+ *   trackableTargets ........ enemies that can be tracked
+ * =====================================================================================================
+ */
+
+/** Thin wrapper around the BedWars1058 API answering "is this player in a running match?". */
+class MatchService(private val plugin: BedWars1058Compass) {
+
+    /** The arena [player] is in, or null. */
+    fun arenaOf(player: Player): IArena? = plugin.bedWars.getArenaUtil().getArenaByPlayer(player)
+
+    /**
+     * True while the player is inside a match that has started. This is the scope of the
+     * compass takeover. Spectators are only included when configured.
+     */
+    fun isInMatch(player: Player): Boolean {
+        val arena = arenaOf(player) ?: return false
+        if (arena.getStatus() != GameState.playing) return false
+        return arena.isPlayer(player) || (plugin.settings.includeSpectators && arena.isSpectator(player))
+    }
+
+    /** A living, non-respawning participant: the only people who can buy / use a tracker. */
+    fun isActivePlayer(player: Player): Boolean {
+        val arena = arenaOf(player) ?: return false
+        return arena.getStatus() == GameState.playing && arena.isPlayer(player) && !arena.isReSpawning(player)
+    }
+
+    /** The team [player] plays for, or null when they are not in an arena. */
+    fun teamOf(player: Player): ITeam? = arenaOf(player)?.getTeam(player)
+
+    /** True once the bed of [player]'s own team is destroyed. This is what turns the compass into the tracker shop. */
+    fun isBedDestroyed(player: Player): Boolean = teamOf(player)?.isBedDestroyed() == true
+
+    /** Enemy players that can currently be tracked by [player]. */
+    fun trackableTargets(player: Player): List<Player> {
+        val arena = arenaOf(player) ?: return emptyList()
+        val own = arena.getTeam(player)
+        return arena.getPlayers()!!.filter { other ->
+            other != player && other.isOnline() && arena.isPlayer(other) &&
+                !arena.isReSpawning(other) && arena.getTeam(other) != own
+        }
+    }
+
+    /** The player's name in their team colour, e.g. "§cSteve". */
+    fun coloredName(player: Player, arena: IArena? = arenaOf(player)): String {
+        val chat: ChatColor = arena?.getTeam(player)?.getColor()?.chat() ?: ChatColor.WHITE
+        return "$chat${player.name}"
+    }
+}

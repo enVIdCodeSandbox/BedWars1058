@@ -164,6 +164,7 @@ These former addons are part of the plugin now (`bedwars-plugin/src/main/kotlin/
 | GeneratorFix | `generatorfix` | - |
 | DragonFix | `dragonfix` | `/bw-dragonfix` |
 | InvisFix | `invisfix` | `/bw-invisfix` |
+| Compass | `compass` | `/bwcompass` |
 
 - `plugins/BedWars1058/Features/features.yml` switches each feature on or off (restart to apply).
 - Every feature has its own settings in `plugins/BedWars1058/Features/<folder>/config.yml`.

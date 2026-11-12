@@ -59,6 +59,10 @@ commands:
     usage: /bw-invisfix <reload | status | config ...>
     aliases: [bwif]
     permission: invisfix.admin
+  # Compass
+  bwcompass:
+    description: BedWars1058-Compass admin command
+    usage: /bwcompass [status|reload|config]
 permissions:
   # MapLoader
   bw1058maploader.admin:
@@ -86,3 +90,16 @@ permissions:
   # InvisFix
   invisfix.admin:
     default: op
+  # Compass
+  bwcompass.admin:
+    description: Everything under /bwcompass
+    default: op
+    children:
+      bwcompass.reload: true
+      bwcompass.config: true
+  bwcompass.reload:
+    description: Allows /bwcompass reload
+    default: false
+  bwcompass.config:
+    description: Allows /bwcompass config (editing config.yml in game)
+    default: false
