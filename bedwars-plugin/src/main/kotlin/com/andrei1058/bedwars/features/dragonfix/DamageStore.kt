@@ -27,6 +27,7 @@ object BlockOps {
 
     fun removeBlock(b: Block) {
         // the replay feature records the change (a dragon breaks blocks without any Bukkit event)
+        com.andrei1058.bedwars.features.replay.ReplayFeature.blockChanging(b)
         try {
             when {
                 setTypePhysics != null -> setTypePhysics.invoke(b, Material.AIR, false)

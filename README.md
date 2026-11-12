@@ -170,9 +170,15 @@ These former addons are part of the plugin now (`bedwars-plugin/src/main/kotlin/
 | ArenaJoinMessage | `arenajoinmessage` | `/ajm` |
 | FastForward | `fastforward` | `/bwff` |
 | SoloControls | `solostart` | `/bw-solocontrols`, `/bw start` |
+| Replay | `replay` | `/replay`, `/replaysjoin`, `/replaytransfer` |
 
 - `plugins/BedWars1058/Features/features.yml` switches each feature on or off (restart to apply).
 - Every feature has its own settings in `plugins/BedWars1058/Features/<folder>/config.yml`.
 - On the first start, the settings folder of an old addon (`plugins/BedWars1058-Compass/` ...) is copied over.
 - Remove the old addon jars. While one is still installed, the built-in copy of that feature stays off.
 - A feature extends `Feature` and is registered in `BuiltInFeatures`. Commands and permissions are in `plugin.yml`.
+- **Replay** needs the [PacketEvents](https://github.com/retrooper/packetevents) plugin on the server (2.x). Without it the
+  feature stays off and says so in the log. It records every match, replays it in a private copy of the map, and reads
+  maps from MapLoader / MultiGroup directly. Features that change blocks without a Bukkit event (DragonFix, Revive,
+  GeneralFixes) report them through `ReplayFeature.blocksChanging(...)`, so those changes appear in replays too.
+  Replays are stored in `Features/replay/replays` (or MySQL / MariaDB, see its `config.yml`).

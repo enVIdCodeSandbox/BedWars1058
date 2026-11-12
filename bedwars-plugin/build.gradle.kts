@@ -15,6 +15,8 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("org.slf4j:slf4j-simple:2.0.7")
     implementation("com.andrei1058.vipfeatures:vipfeatures-api:1.+")
+    // JDBC driver for the replay feature's optional MySQL/MariaDB storage (loaded through the service loader)
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.1")
 
     // version support modules are loaded by name at runtime, they are not needed to compile the core
     runtimeOnly(project(":versionsupport_1_8_R3"))
@@ -65,6 +67,8 @@ dependencies {
         exclude(group = "org.bstats", module = "bstats-bukkit")
         exclude(group = "net.byteflux", module = "libby-bukkit") // runtime-only for Citizens itself
     }
+    // the built-in replay feature: PacketEvents is installed on the server as a plugin
+    compileOnly("com.github.retrooper:packetevents-spigot:2.12.1")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0") {
         isTransitive = false
     }

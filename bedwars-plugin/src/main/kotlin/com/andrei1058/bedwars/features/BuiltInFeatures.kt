@@ -12,6 +12,7 @@ import com.andrei1058.bedwars.features.invisfix.InvisFixPlugin
 import com.andrei1058.bedwars.features.maploader.WorldLoaderPlugin
 import com.andrei1058.bedwars.features.mobspawn.MobSpawnPlugin
 import com.andrei1058.bedwars.features.multigroup.MultiGroupPlugin
+import com.andrei1058.bedwars.features.replay.ReplayFeature
 import com.andrei1058.bedwars.features.revive.BedWarsRevive
 import com.andrei1058.bedwars.features.solostart.SoloControlsPlugin
 
@@ -36,5 +37,7 @@ internal object BuiltInFeatures {
         // Game flow tools.
         FeatureManager.register(FastForwardPlugin())
         FeatureManager.register(SoloControlsPlugin())
+        // Match recording and playback (needs the PacketEvents plugin).
+        FeatureManager.register(ReplayFeature())
     }
 }

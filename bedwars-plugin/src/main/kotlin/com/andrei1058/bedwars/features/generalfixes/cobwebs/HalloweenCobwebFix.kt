@@ -61,6 +61,7 @@ class HalloweenCobwebFix(plugin: FixPlugin, section: String) : Fix(plugin, secti
         val marked = block.hasMetadata(SPECIAL_MARKER)
         if (settings.onlySpecialWebs && !marked) return
 
+        com.andrei1058.bedwars.features.replay.ReplayFeature.blockChanging(block)
         block.setType(Material.AIR)
         if (marked) {
             block.removeMetadata(SPECIAL_MARKER, plugin.host)

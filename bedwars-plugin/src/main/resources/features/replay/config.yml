@@ -1,0 +1,156 @@
+# Replay (built-in BedWars1058 feature) configuration. Needs the PacketEvents plugin on the server.
+# Colour codes use & (e.g. &a). Reload with /replay reload (storage changes need a restart).
+
+storage:
+  # FILE  = replays are local files in plugins/BedWars1058/Features/replay/replays (default, recommended)
+  # MYSQL = replays are stored in a MySQL / MariaDB database (shared between servers)
+  type: FILE
+  mysql:
+    host: localhost
+    port: 3306
+    database: bedreplay
+    user: root
+    password: ""
+    table-prefix: bedreplay_
+    use-ssl: false
+
+recording:
+  enabled: true
+  # Also notice matches that are already running (or whose state-change event was missed) and start recording them.
+  auto-detect: true
+  # Which maps / map groups get recorded. mode: ALL, WHITELIST (only the listed ones) or BLACKLIST (everything but the
+  # listed ones). A match is listed if its arena name OR its group is listed. Editable in game: /replay filter ...
+  filter:
+    mode: ALL
+    arenas: []
+    groups: []
+  # Recordings shorter than this are thrown away (e.g. a match that was cancelled immediately).
+  min-duration-seconds: 20
+  # Keep recording this long after the game ends (victory screen) before saving.
+  post-game-seconds: 8
+  # How often the recording is flushed to disk, so a crash loses at most this much.
+  flush-interval-seconds: 5
+  record-chat: true
+  record-blocks: true
+  # Dropped items, arrows, TNT, fireballs, golems, silverfish, villagers, armor stands ...
+  record-entities: true
+  # Sounds, titles / action bars, and sidebar scoreboards + name tags (team prefixes) as players saw them.
+  record-sounds: true
+  record-titles: true
+  record-scoreboards: true
+  # Full player inventories, and the contents of chests / ender chests / furnaces whenever players open them.
+  record-inventories: true
+
+retention:
+  # Days a replay is kept before it is deleted automatically. 0 = never delete.
+  default-days: 14
+  # Can players in a match mark their replay "keep forever" from the menu?
+  allow-keep-forever: true
+  # Can players extend the expiry from the menu, and by how many days at most in total?
+  allow-extend: true
+  extend-step-days: 7
+  max-total-days: 90
+  # Can participants delete their own replays? (admins always can)
+  players-can-delete: false
+  cleanup-interval-minutes: 30
+
+playback:
+  # Each viewer gets a private copy of the map, so this bounds memory and disk usage.
+  max-concurrent: 5
+  world-prefix: bedreplay_
+  # Allowed speeds in the order the speed buttons step through them.
+  speeds: [0.25, 0.5, 1.0, 2.0, 4.0, 8.0]
+  default-speed: 1.0
+  skip-seconds: 10
+  play-sounds: true
+  # Invisible players are drawn invisible like in the match, but keep their armor and name tag so you can find them.
+  # Health above players' heads: OFF, NUMBER (the raw health number under the name, out of 20), HEARTS (a row of hearts after the name) or BOTH.
+  health-mode: NUMBER
+  # The replay sidebar for clients older than 1.13 (a 1.8 client through ViaVersion cuts rows at 16 characters):
+  # auto = detect the client, always = treat every viewer as such a client, never = never.
+  legacy-rows: auto
+  # Spectating a player keeps the item they hold in your hand and locks your look to theirs so the hand cannot sway on its own.
+  # true = additionally tell the client it is in real spectator mode: no hand or hotbar is drawn at all, and the
+  # action bar shows the player's name, health and held item instead.
+  spectate-client-mode: false
+  # Where viewers are sent when playback ends. Empty = the world they started from.
+  return-world: ""
+
+sharing:
+  # Shared replays: the player who started a replay is its host and controls the timeline; others can join and watch.
+  # These are only the starting values; every player's own choices are remembered in plugins/BedWars1058/Features/replay/playerdata.
+  default-allow-join: false
+  default-whitelist-only: false
+  # Let guests who were not in the match add the replay to their own list.
+  default-guest-save: false
+  # Tell players in the lobby (clickable) when someone starts a replay they may join.
+  announce-to-lobby: true
+  max-viewers-per-replay: 20
+
+menu:
+  title: "&8Match Replays"
+  admin-title: "&8Match Replays &c(admin)"
+
+messages:
+  prefix: "&8[&bReplay&8] &7"
+  recording-saved: "Replay &f{id}&7 saved (&f{duration}&7)."
+  no-permission: "&cYou do not have permission to do that."
+  not-found: "&cThat replay no longer exists."
+  playback-busy: "&cToo many replays are being watched right now, try again shortly."
+  loading: "Loading replay..."
+  load-failed: "&cThe replay could not be loaded."
+  map-missing: "&cThe map for this replay is not available, so it cannot be played back."
+  now-playing: "Now watching &f{map}&7. Use the hotbar to control playback."
+  paused: "Paused"
+  resumed: "Playing"
+  speed: "Speed: &f{speed}x"
+  jumped: "Jumped to &f{time}"
+  type-time: "Type a time in chat, e.g. &f3:45&7 or &f+30&7 / &f-30&7 (seconds). Type &fcancel&7 to abort."
+  bad-time: "&cCould not read that time."
+  following: "Following &f{player}&7."
+  stopped-following: "No longer following anyone."
+  spectate-hint: "&7Spectating. &fSneak&7 to stop, &f/replay inv&7 to see their inventory."
+  keep-on: "This replay will be kept forever."
+  keep-off: "This replay will expire in &f{days}&7 days."
+  extended: "Replay extended. It now expires in &f{days}&7 days."
+  deleted: "Replay deleted."
+  playback-ended: "Replay finished."
+  reloaded: "Configuration reloaded."
+  export-no-advancedreplay: "&cAdvancedReplay is not installed on this server."
+  export-started: "Exporting &f{id}&7 for AdvancedReplay..."
+  export-done: "Exported as &f{name}&7. Load it with &f/replay play {name}&7 in AdvancedReplay; it plays in the world named &f{world}&7, which must exist."
+  export-skipped: " &8(AdvancedReplay cannot store: {list})"
+  export-failed: "&cExport failed: {reason}"
+  no-container: "&cNo ender chest was recorded for that player."
+  following-waiting: "Following &f{player}&7; the camera attaches when they are back in the match."
+  joined: "You joined &f{host}&7's replay of &f{map}&7."
+  guest-joined: "&f{player}&7 joined the replay."
+  guest-left: "&f{player}&7 left the replay."
+  join-denied: "&cYou cannot join that replay."
+  join-full: "&cThat replay is full."
+  join-not-found: "&cNobody by that name is hosting a replay."
+  join-already: "&cYou are already watching a replay."
+  join-in-game: "&eYou must be in the main BedWars lobby to join a replay."
+  not-in-lobby: "&eYou must be in the main BedWars lobby to watch a replay."
+  already-watching: "&eYou are already watching a replay. Leave it first with &f/replay stop&e."
+  inv-not-spectating: "&cYou are not spectating anyone. Punch a player with an empty hand first."
+  host-only: "&cOnly the host of this replay can do that."
+  announce: "&f{host}&7 is watching a replay of &f{map}&7. &a[Click to join]"
+  announce-hover: "Join {host}'s replay"
+  transfer-done: "&f{player}&7 is now the host of this replay."
+  transfer-you: "You are now the host of this replay. Sharing settings are now yours."
+  transfer-usage: "&cUsage: /replaytransfer <player in this replay>"
+  transfer-not-member: "&cThat player is not watching this replay."
+  not-watching: "&cYou are not watching a replay."
+  host-left: "The host left. &f{player}&7 is the new host."
+  setting-allow-join: "Joining your replays: &f{value}"
+  setting-whitelist-only: "Whitelist only: &f{value}"
+  setting-guest-save: "Guests may save the replay: &f{value}"
+  whitelist-added: "&f{player}&7 is now on your whitelist."
+  whitelist-removed: "&f{player}&7 was removed from your whitelist."
+  whitelist-prompt: "Type the name of a player to whitelist, or &fcancel&7."
+  whitelist-unknown: "&cI don't know a player called that (they must have joined this server before)."
+  save-denied: "&cThe host does not allow saving this replay."
+  save-already: "&cThis replay is already in your list."
+  saved: "Replay saved to your list. Find it with &f/replay&7."
+  kicked-host-ended: "The host ended the replay."

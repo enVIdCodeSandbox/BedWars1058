@@ -74,6 +74,10 @@ allprojects {
         maven("https://repo.dmulloy2.net/repository/public/") {
             content { includeGroup("com.comphenix.protocol") }
         }
+        // PacketEvents is a plugin the built-in replay feature needs on the server (compile-only here).
+        maven("https://repo.codemc.io/repository/maven-releases/") {
+            content { includeGroup("com.github.retrooper") }
+        }
         maven("https://repo.infernalsuite.com/repository/maven-snapshots/") {
             content { includeGroup("com.infernalsuite.aswm") }
         }

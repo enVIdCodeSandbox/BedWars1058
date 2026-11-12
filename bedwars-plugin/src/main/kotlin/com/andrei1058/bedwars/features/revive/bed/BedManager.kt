@@ -100,6 +100,7 @@ class BedManager(private val plugin: BedWarsRevive) : Listener {
         return try {
             for (piece in snapshot.pieces) {
                 val block = piece.block()
+                com.andrei1058.bedwars.features.replay.ReplayFeature.blockChanging(block)
                 adapter.write(block, piece.state)
                 // Make sure BedWars1058 doesn't consider it a player-placed block.
                 try {
@@ -123,6 +124,7 @@ class BedManager(private val plugin: BedWarsRevive) : Listener {
         val partnerFace = if (first.isHead) first.facing.oppositeFace else first.facing
         val partner = block.getRelative(partnerFace)
         val partnerIsBed = adapter.read(partner) != null
+        com.andrei1058.bedwars.features.replay.ReplayFeature.blocksChanging(if (partnerIsBed) listOf(block, partner) else listOf(block))
         block.type = Material.AIR
         if (partnerIsBed) partner.type = Material.AIR
     }

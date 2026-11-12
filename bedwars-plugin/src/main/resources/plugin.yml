@@ -4,7 +4,7 @@ version: ${project.version}
 author: andrei1058
 description: BedWars minigame by andrei1058
 main: com.andrei1058.bedwars.BedWars
-softdepend: [Vault,PlaceholderAPI,Citizens,Parties,SlimeWorldManager,VipFeatures,Enhanced-SlimeWorldManager,PartyAndFriends,Spigot-Party-API-PAF,ProtocolLib,ViaVersion,ProtocolSupport]
+softdepend: [Vault,PlaceholderAPI,Citizens,Parties,SlimeWorldManager,VipFeatures,Enhanced-SlimeWorldManager,PartyAndFriends,Spigot-Party-API-PAF,ProtocolLib,ViaVersion,ProtocolSupport,packetevents,AdvancedReplay]
 #load: STARTUP
 
 # Commands and permissions of the built-in features (see plugins/BedWars1058/Features).
@@ -90,6 +90,17 @@ commands:
     usage: /bw-solocontrols <start [seconds] | end | reload | config ...>
     aliases: [bwdebug, bwd, bwsc]
     permission: solocontrols.use
+  # Replay
+  replay:
+    description: Open your match replays
+    usage: /replay [stop|inv|save|reload|record <on|off>|filter ...|export <id> [world]]
+    aliases: [replays, bedreplay]
+  replaysjoin:
+    description: Join a replay another player is watching
+    usage: /replaysjoin [player]
+  replaytransfer:
+    description: Hand the host role of your replay to another viewer
+    usage: /replaytransfer <player>
 permissions:
   # MapLoader
   bw1058maploader.admin:
@@ -208,4 +219,11 @@ permissions:
     default: op
   solocontrols.end.spectating:
     description: End the game you are spectating with /bw-solocontrols end.
+    default: op
+  # Replay
+  bedreplay.use:
+    description: Open the replay menu and watch your own matches
+    default: true
+  bedreplay.admin:
+    description: See and manage every replay
     default: op
