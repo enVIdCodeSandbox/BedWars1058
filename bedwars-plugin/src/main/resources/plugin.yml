@@ -4,7 +4,7 @@ version: ${project.version}
 author: andrei1058
 description: BedWars minigame by andrei1058
 main: com.andrei1058.bedwars.BedWars
-softdepend: [Vault,PlaceholderAPI,Citizens,Parties,SlimeWorldManager,VipFeatures,Enhanced-SlimeWorldManager,PartyAndFriends,Spigot-Party-API-PAF]
+softdepend: [Vault,PlaceholderAPI,Citizens,Parties,SlimeWorldManager,VipFeatures,Enhanced-SlimeWorldManager,PartyAndFriends,Spigot-Party-API-PAF,ViaVersion,ProtocolSupport]
 #load: STARTUP
 
 # Commands and permissions of the built-in features (see plugins/BedWars1058/Features).
@@ -42,6 +42,11 @@ commands:
     usage: /nextgen [diamond|emerald] [degrees]
     aliases: [bwrotate]
     permission: bwauto.use
+  # GeneralFixes
+  bwfixes:
+    description: Manage BedWars1058-GeneralFixes
+    usage: /<command> [reload]
+    aliases: [bwgf, bw1058fixes]
 permissions:
   # MapLoader
   bw1058maploader.admin:
@@ -58,4 +63,8 @@ permissions:
   # EasySetup
   bwauto.use:
     description: Use the Bedwars auto-setup tools.
+    default: op
+  # GeneralFixes
+  bwfixes.admin:
+    description: Allows /bwfixes reload
     default: op
