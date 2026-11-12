@@ -1,0 +1,47 @@
+/*
+ * BedWars1058 - A bed wars mini-game.
+ * Copyright (C) 2021 Andrei Dascălu
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Contact e-mail: andrew.dascalu@gmail.com
+ */
+
+package com.andrei1058.bedwars.api.events.server
+
+import com.andrei1058.bedwars.api.server.ISetupSession
+import org.bukkit.event.Event
+import org.bukkit.event.HandlerList
+
+open class SetupSessionStartEvent(private var setupSession: ISetupSession) : Event() {
+    /**
+     * Get setup session.
+     */
+    open fun getSetupSession(): ISetupSession {
+        return setupSession
+    }
+
+    override fun getHandlers(): HandlerList {
+        return HANDLERS
+    }
+
+    companion object {
+        private val HANDLERS: HandlerList = HandlerList()
+
+        @JvmStatic
+        fun getHandlerList(): HandlerList {
+            return HANDLERS
+        }
+    }
+}
