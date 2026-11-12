@@ -2201,6 +2201,16 @@ open class Arena : IArena {
         return emeraldTier
     }
 
+    /** Sets the tier (1-3) the diamond generators are counted as. Used by the FastForward feature. */
+    open fun setDiamondTier(tier: Int) {
+        diamondTier = tier
+    }
+
+    /** Sets the tier (1-3) the emerald generators are counted as. Used by the FastForward feature. */
+    open fun setEmeraldTier(tier: Int) {
+        emeraldTier = tier
+    }
+
     override fun getYHeightLimit(): Int {
         return getConfig()!!.getInt(ConfigPath.ARENA_CONFIGURATION_MAX_BUILD_Y)
     }

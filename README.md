@@ -168,6 +168,7 @@ These former addons are part of the plugin now (`bedwars-plugin/src/main/kotlin/
 | Revive | `revive` | `/revive` |
 | MobSpawn | `mobspawn` | `/mobspawn` |
 | ArenaJoinMessage | `arenajoinmessage` | `/ajm` |
+| FastForward | `fastforward` | `/bwff` |
 
 - `plugins/BedWars1058/Features/features.yml` switches each feature on or off (restart to apply).
 - Every feature has its own settings in `plugins/BedWars1058/Features/<folder>/config.yml`.

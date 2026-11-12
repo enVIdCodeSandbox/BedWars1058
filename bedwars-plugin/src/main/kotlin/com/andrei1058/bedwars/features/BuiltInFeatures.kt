@@ -5,6 +5,7 @@ import com.andrei1058.bedwars.features.arenamanagement.ArenaManagementPlugin
 import com.andrei1058.bedwars.features.compass.BedWars1058Compass
 import com.andrei1058.bedwars.features.dragonfix.DragonFixPlugin
 import com.andrei1058.bedwars.features.easysetup.EasySetupPlugin
+import com.andrei1058.bedwars.features.fastforward.FastForwardPlugin
 import com.andrei1058.bedwars.features.generalfixes.GeneralFixesPlugin
 import com.andrei1058.bedwars.features.generatorfix.GeneratorFixPlugin
 import com.andrei1058.bedwars.features.invisfix.InvisFixPlugin
@@ -31,5 +32,7 @@ internal object BuiltInFeatures {
         FeatureManager.register(BedWarsRevive())
         FeatureManager.register(MobSpawnPlugin())
         FeatureManager.register(ArenaJoinMessagePlugin())
+        // Game flow tools.
+        FeatureManager.register(FastForwardPlugin())
     }
 }

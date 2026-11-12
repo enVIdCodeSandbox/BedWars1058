@@ -78,6 +78,12 @@ commands:
     description: BedWars1058-ArenaJoinMessage main command
     usage: /<command> [help|toggle|reload|preview|get|set|join]
     aliases: [arenajoinmessage, arenajoin]
+  # FastForward
+  bwff:
+    description: BedWars1058 FastForward control
+    usage: /bwff help
+    aliases: [fastforward, ff]
+    permission: bwff.admin
 permissions:
   # MapLoader
   bw1058maploader.admin:
@@ -183,3 +189,7 @@ permissions:
   arenajoinmessage.toggle:
     description: Turn notifications on/off for yourself (/ajm toggle)
     default: true
+  # FastForward
+  bwff.admin:
+    description: Use every /bwff subcommand
+    default: op

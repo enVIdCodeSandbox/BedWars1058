@@ -71,6 +71,14 @@ open class OreGenerator(location: Location, arena: IArena, type: GeneratorType, 
     private var item: ArmorStand? = null
     @JvmField var stack: Boolean = getGeneratorsCfg().getBoolean(ConfigPath.GENERATOR_STACK_ITEMS)
 
+    /** The tier (1-3) this generator is at. */
+    open fun getUpgradeStage(): Int = upgradeStage
+
+    /** Sets the tier without applying its settings; use [upgrade] for a normal tier change. Used by the FastForward feature. */
+    open fun setUpgradeStage(stage: Int) {
+        upgradeStage = stage
+    }
+
     override fun upgrade() {
         when (type) {
             GeneratorType.DIAMOND -> {

@@ -75,6 +75,21 @@ open class GamePlayingTask(private var arena: Arena) : Runnable, PlayingTask {
         return game_end_countdown
     }
 
+    /** Seconds until the beds are destroyed. Used by the FastForward feature. */
+    open fun setBedsDestroyCountdown(seconds: Int) {
+        beds_destroy_countdown = seconds
+    }
+
+    /** Seconds until sudden death. Used by the FastForward feature. */
+    open fun setDragonSpawnCountdown(seconds: Int) {
+        dragon_spawn_countdown = seconds
+    }
+
+    /** Seconds until the game ends. Used by the FastForward feature. */
+    open fun setGameEndCountdown(seconds: Int) {
+        game_end_countdown = seconds
+    }
+
     override fun run() {
         when (getArena().getNextEvent()) {
             NextEvent.EMERALD_GENERATOR_TIER_II, NextEvent.EMERALD_GENERATOR_TIER_III, NextEvent.DIAMOND_GENERATOR_TIER_II, NextEvent.DIAMOND_GENERATOR_TIER_III -> {
