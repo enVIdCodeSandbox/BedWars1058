@@ -1,0 +1,113 @@
+# Start the hotbar setup (tools + menu) as soon as a player runs /bw setupArena <world>.
+auto-start-on-setup-arena: true
+
+# ---------------------------------------------------------------------------
+# BedwarsAutoSetup configuration
+# ---------------------------------------------------------------------------
+
+# Bedwars1058 setup commands this plugin runs on your behalf (as the player).
+# Placeholders: {root} {team} {color} {type} {size}
+# Set a template to "" to disable that step. Verify these against your BW1058 version.
+bw-commands:
+  root: "bw"
+  create-team: "{root} createTeam {team} {color}"
+  remove-team: "{root} removeTeam {team}"
+  set-max-in-team: "{root} setMaxInTeam {size}"
+  set-spawn: "{root} setSpawn {team}"
+  set-bed: "{root} setBed {team}"
+  set-shop: "{root} setShop {team}"
+  set-upgrade: "{root} setUpgrade {team}"
+  add-generator: "{root} addGenerator {type} {team}"
+  add-map-generator: "{root} addGenerator {type}"
+  remove-generator: "{root} removeGenerator"
+  # Run when you delete an element by hitting it. Bedwars1058 may not have a command for these; an empty
+  # template means the element is only forgotten here and its old value is overwritten when you place it again.
+  remove-spawn: ""
+  remove-bed: ""
+  remove-shop: ""
+  remove-upgrade: ""
+  remove-kill-drops: ""
+  remove-waiting-spawn: ""
+  remove-spectator-spawn: ""
+  remove-waiting-pos1: ""
+  remove-waiting-pos2: ""
+  set-kill-drops: "{root} setKillDrops {team}"
+  set-waiting-spawn: "{root} setWaitingSpawn"
+  set-spectator-spawn: "{root} setSpectatorSpawn"
+  waiting-pos1: "{root} waitingPos1"
+  waiting-pos2: "{root} waitingPos2"
+  save: "{root} save"
+
+# Hotbar setup: how shops and upgrades are turned when you place them (also /bwsetup facing|snap|pitch).
+facing:
+  shop-mode: toward-player     # toward-player (opposite of where you face) | same | fixed
+  shop-fixed-yaw: 0            # used when shop-mode is fixed (0 south, 90 west, 180 north, 270 east)
+  shop-snap-degrees: 45        # round the yaw to this step; 0 = exact
+  shop-pitch: 0                # shops and upgrades are locked to this pitch
+  spawn-snap-degrees: 45       # team spawns face the way you face, rounded to this step; 0 = exact
+
+# Elements that already exist (plugins/BedWars1058/<folder>/<world>.yml) are loaded when setup mode starts.
+existing-arena:
+  import-on-start: true
+  folder: Arenas
+
+# Punchable markers (villagers for shops/upgrades, labelled floating blocks for the rest) while you are in setup mode. Removed on quit, on world save, on
+# chunk unload and when setup mode ends.
+ghosts:
+  enabled: true
+
+delete:
+  confirm-seconds: 5           # hit non-physical elements (spawn, bed...) twice within this time to delete them
+
+# Root labels the command sniffer recognises when a player types setup commands by hand.
+command-roots: [bw, bedwars, bw1058]
+
+timing:
+  step-delay-ticks: 2          # delay between teleports / commands in a placement queue
+  countdown-seconds: 3         # /nextgen movement-cancel countdown
+
+# Symmetry centre of the map. Used for rotations, lobby scan and generator scan.
+center:
+  x: 0.0
+  z: 0.0
+
+# Snap computed positions to the nearest 0.5 block.
+snap-to-half-block: true
+
+beds:
+  template-search-radius: 30   # nearest bed to the player when capturing the template base
+  scan-radius: 200             # how far from the centre to look for beds
+  armor-stand-radius: 7        # a bed with an armor stand this close is treated as already assigned
+  assigned-radius: 10          # a bed this close to an assigned bed is treated as already assigned
+  scan-y-range: 80             # vertical half-range of the map-wide bed scan (keeps it fast on every version)
+
+lobby-scan:
+  radius: 48                   # square radius around the centre that is scanned
+  min-blocks: 24               # ignore structures smaller than this
+  max-center-offset: 32        # structure bounding-box centre must be this close to the map centre
+  padding: 1                   # blocks added around the detected structure
+
+wool:
+  radius: 24
+  min-score: 6                 # minimum (own count - mean count at other bases) to accept a colour
+  families: [WOOL]             # coloured block families that count: WOOL, CONCRETE, TERRACOTTA, GLASS, CARPET
+
+mirror:
+  mode: auto                   # auto | off | force
+  sample-radius: 14
+  margin: 0.03                 # mirrored score must beat rotated score by this much
+
+generator-scan:
+  radius: 100
+  y-range: 48                  # vertical half-range around you that is searched
+  min-probability: 0.6         # a diamond/emerald block is placed as a generator at or above this probability
+                               # (use /bwauto gens to see every candidate's probability and why)
+
+rotation:
+  default-degrees: 90
+
+validation:
+  required-map-elements: [WAITING_SPAWN, SPECTATOR_SPAWN, LOBBY_POS1, LOBBY_POS2, GEN_DIAMOND, GEN_EMERALD]
+
+messages:
+  incomplete-auto: "You are attempting to run automatic placement without all game elements. You are missing [{elements}]. Run /bwauto confirm/deny to continue anyway."

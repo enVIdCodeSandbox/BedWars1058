@@ -27,6 +27,21 @@ commands:
     description: Reload or inspect BedWars1058-ArenaManagement.
     usage: /arenamanagement <reload|menu|gui [group]>
     aliases: [bwam]
+  # EasySetup
+  bwsetup:
+    description: Start hotbar setup mode and open the setup menu.
+    usage: /bwsetup [open|exit|tools|page <team|map>|mode|gamemode|facing|snap|pitch|import|delete|list|next|help|reload|status|reset]
+    aliases: [bwa, bwautosetup]
+    permission: bwauto.use
+  bwauto:
+    description: Run automatic placement, or confirm/deny it when elements are missing.
+    usage: /bwauto [run|next|confirm|deny|gens]
+    permission: bwauto.use
+  nextgen:
+    description: Detect and place the next diamond/emerald generator, or rotate around the map centre.
+    usage: /nextgen [diamond|emerald] [degrees]
+    aliases: [bwrotate]
+    permission: bwauto.use
 permissions:
   # MapLoader
   bw1058maploader.admin:
@@ -39,4 +54,8 @@ permissions:
   # ArenaManagement
   arenamanagement.admin:
     description: Allows /arenamanagement reload.
+    default: op
+  # EasySetup
+  bwauto.use:
+    description: Use the Bedwars auto-setup tools.
     default: op
