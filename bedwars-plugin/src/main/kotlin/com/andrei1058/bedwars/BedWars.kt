@@ -294,6 +294,16 @@ open class BedWars : JavaPlugin() {
                     party = com.andrei1058.bedwars.support.party.Internal()
                     out.info("Loading internal Party system. /party")
                 }
+                // /party: the built-in system has its own Hypixel-style command, other providers keep the generic one
+                if (getServerType() != ServerType.BUNGEE && BedWars.config.getBoolean(ConfigPath.GENERAL_ENABLE_PARTY_CMD)) {
+                    Bukkit.getLogger().info("Registering /party command..")
+                    if (party.isInternal()) {
+                        nms.registerCommand("party", com.andrei1058.bedwars.party.PartyCommand("party"))
+                        nms.registerCommand("pc", com.andrei1058.bedwars.party.PartyChatCommand("pc"))
+                    } else {
+                        nms.registerCommand("party", PartyCommand("party"))
+                    }
+                }
             } else {
                 party = NoParty()
             }
@@ -347,6 +357,8 @@ open class BedWars : JavaPlugin() {
         TeamSelectorModule.enable()
         /* Play menu (/bw play) */
         PlayMenuModule.enable()
+        /* Parties and Play Again */
+        com.andrei1058.bedwars.party.PartyModule.INSTANCE.enable(this)
         try {
             com.andrei1058.bedwars.management.Management.start(this)
         } catch (t: Throwable) {
@@ -502,15 +514,12 @@ open class BedWars : JavaPlugin() {
         nms.registerCommand("rejoin", RejoinCommand("rejoin"))
         // /leave and /l only exist when no other plugin has them (they are aliases of /bwleave)
         nms.registerCommand("bwleave", LeaveCommand("bwleave"))
-        if (getServerType() != ServerType.BUNGEE && BedWars.config.getBoolean(ConfigPath.GENERAL_ENABLE_PARTY_CMD)) {
-            Bukkit.getLogger().info("Registering /party command..")
-            nms.registerCommand("party", PartyCommand("party"))
-        }
     }
 
     override fun onDisable() {
         shuttingDown = true
         com.andrei1058.bedwars.management.Management.stop()
+        com.andrei1058.bedwars.party.PartyModule.INSTANCE.disable()
         if (!serverSoftwareSupport) {
             return
         }
