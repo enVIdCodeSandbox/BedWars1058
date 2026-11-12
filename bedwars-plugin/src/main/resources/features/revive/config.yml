@@ -1,0 +1,66 @@
+# BedWars1058-Revive configuration
+# Color codes use '&'. Placeholders: {player} {team} {arena} {arenas} {teams}
+
+# Bed behaviour when the player does not say "bed" or "nobed" explicitly.
+bed-by-default: false
+
+# Players that are not in any game may use /revive to join a running game.
+# (They still need the bwrevive.outsider permission.)
+allow-outsiders: true
+
+# Announce joins/revives to everyone in the arena.
+broadcast: true
+
+# If a team never had a player this game (so BedWars1058 skipped its shop/upgrade NPCs)
+# spawn the NPCs when someone joins it.
+spawn-npcs-for-empty-team: true
+
+# Re-apply BedWars1058's team bed colour after restoring a bed.
+recolor-bed: true
+
+# Print extra diagnostics to the console.
+debug: false
+
+messages:
+  prefix: "&8[&cRevive&8] &7"
+  player-only: "&cOnly players can use this command."
+  no-permission: "&cYou don't have permission to do that."
+  usage: "&eUsage: &f/revive <team> [bed|nobed] [arena] &7| &f/revive bed [team] [arena] &7| &f/revive set <player> <team> [bed|nobed] [arena] &7| &f/revive eliminate <player> &7| &f/revive teams [arena]"
+  reloaded: "Configuration reloaded."
+  no-arena: "You are not in a game. Specify one: &f/revive <team> [bed|nobed] <arena> &7(running: &f{arenas}&7)"
+  unknown-arena: "&cNo arena called &f{arena}&c."
+  arena-not-playing: "&cThat game isn't running yet (or has already ended)."
+  unknown-team: "&cUnknown team. Teams: &f{teams}"
+  in-other-arena: "&cYou are in a different game. Leave it first."
+  outsiders-disabled: "&cJoining a game you were not part of is disabled."
+  no-outsider-permission: "&cYou don't have permission to join a game you were not part of."
+  switch-disabled: "&cYou don't have permission to switch teams while alive."
+  respawning: "&cYou are already respawning, hold on."
+  already-on-team: "&cYou are already alive on that team."
+  spectate-failed: "&cThe game refused to let you in."
+  internal-error: "&cSomething went wrong. Please tell an administrator."
+  bed-no-permission: "&eYou lack the permission to restore beds, so you joined without one."
+  bed-intact: "&7(That team's bed is still intact.)"
+  bed-restored: "&aThe team's bed has been restored."
+  bed-no-snapshot: "&eThe bed could not be built (this team has no bed location configured)."
+  bed-failed: "&eThe bed could not be restored."
+  revived: "&aYou joined team {team}&a."
+  switched: "&aYou switched to team {team}&a."
+  bed-only: "&aBed restored for team {team}&a."
+  broadcast-revived: "&e{player} &7joined team {team}&7."
+  broadcast-switched: "&e{player} &7switched to team {team}&7."
+  team-line: "{team}&7: &f{members} player(s) &7- bed {bed}"
+  bed-alive: "&aalive"
+  bed-dead: "&cdestroyed"
+  bed-recreated: "&aThe bed of team {team}&a has been recreated."
+  bed-already-intact: "&7The bed of team {team}&7 is already intact."
+  bed-other-no-permission: "&cYou can only recreate your own team's bed."
+  bed-team-empty: "&cTeam {team}&c has nobody on it, and a bed needs a player on its team. Use &f/revive set <player> <team> bed&c."
+  bed-needs-team: "&cYou are not on a team. Specify one: &f/revive bed <team> [arena]"
+  player-not-found: "&cPlayer &f{player}&c is not online."
+  target-not-alive: "&cThat player isn't alive in a running game."
+  eliminated: "&a{player} &7is now a dead spectator."
+  eliminated-target: "&cYou were put into spectator mode by an administrator."
+  moved-by-admin: "&eAn administrator put you on team {team}&e."
+  admin-moved: "&a{player} &7is now on team {team}&7."
+  teams-header: "&7Teams in &f{arena}&7:"

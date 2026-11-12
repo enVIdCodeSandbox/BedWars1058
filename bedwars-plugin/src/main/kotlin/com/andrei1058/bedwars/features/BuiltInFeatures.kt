@@ -9,6 +9,7 @@ import com.andrei1058.bedwars.features.generatorfix.GeneratorFixPlugin
 import com.andrei1058.bedwars.features.invisfix.InvisFixPlugin
 import com.andrei1058.bedwars.features.maploader.WorldLoaderPlugin
 import com.andrei1058.bedwars.features.multigroup.MultiGroupPlugin
+import com.andrei1058.bedwars.features.revive.BedWarsRevive
 
 /** The features that ship inside BedWars1058. The order is the start order. */
 internal object BuiltInFeatures {
@@ -25,5 +26,6 @@ internal object BuiltInFeatures {
         FeatureManager.register(DragonFixPlugin())
         FeatureManager.register(InvisFixPlugin())
         FeatureManager.register(BedWars1058Compass())
+        FeatureManager.register(BedWarsRevive())
     }
 }
