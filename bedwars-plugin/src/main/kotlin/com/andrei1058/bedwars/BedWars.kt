@@ -135,7 +135,6 @@ open class BedWars : JavaPlugin() {
         api = API()
         Bukkit.getServicesManager().register(com.andrei1058.bedwars.api.BedWars::class.java, api, this, ServicePriority.Highest)
         try {
-            //noinspection unchecked
             nms = supp.getConstructor(Class.forName("org.bukkit.plugin.Plugin"), String::class.java).newInstance(this, version) as VersionSupport
         } catch (e: InstantiationException) {
             e.printStackTrace()
