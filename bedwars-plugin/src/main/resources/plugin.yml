@@ -22,6 +22,11 @@ commands:
     usage: /<command> help
     aliases: [bwmultigroup, multigroup]
     permission: bw1058multigroup.admin
+  # ArenaManagement
+  arenamanagement:
+    description: Reload or inspect BedWars1058-ArenaManagement.
+    usage: /arenamanagement <reload|menu|gui [group]>
+    aliases: [bwam]
 permissions:
   # MapLoader
   bw1058maploader.admin:
@@ -30,4 +35,8 @@ permissions:
   # MultiGroup
   bw1058multigroup.admin:
     description: Use /bwmg
+    default: op
+  # ArenaManagement
+  arenamanagement.admin:
+    description: Allows /arenamanagement reload.
     default: op
