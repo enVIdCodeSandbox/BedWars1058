@@ -13,6 +13,7 @@ import com.andrei1058.bedwars.features.maploader.WorldLoaderPlugin
 import com.andrei1058.bedwars.features.mobspawn.MobSpawnPlugin
 import com.andrei1058.bedwars.features.multigroup.MultiGroupPlugin
 import com.andrei1058.bedwars.features.revive.BedWarsRevive
+import com.andrei1058.bedwars.features.solostart.SoloControlsPlugin
 
 /** The features that ship inside BedWars1058. The order is the start order. */
 internal object BuiltInFeatures {
@@ -34,5 +35,6 @@ internal object BuiltInFeatures {
         FeatureManager.register(ArenaJoinMessagePlugin())
         // Game flow tools.
         FeatureManager.register(FastForwardPlugin())
+        FeatureManager.register(SoloControlsPlugin())
     }
 }

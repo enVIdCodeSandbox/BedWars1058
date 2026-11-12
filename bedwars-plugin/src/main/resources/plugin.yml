@@ -84,6 +84,12 @@ commands:
     usage: /bwff help
     aliases: [fastforward, ff]
     permission: bwff.admin
+  # SoloControls
+  bw-solocontrols:
+    description: BedWars debug helper.
+    usage: /bw-solocontrols <start [seconds] | end | reload | config ...>
+    aliases: [bwdebug, bwd, bwsc]
+    permission: solocontrols.use
 permissions:
   # MapLoader
   bw1058maploader.admin:
@@ -192,4 +198,14 @@ permissions:
   # FastForward
   bwff.admin:
     description: Use every /bwff subcommand
+    default: op
+  # SoloControls
+  solocontrols.use:
+    description: Use /bw start and /bw-solocontrols.
+    default: op
+  solocontrols.end:
+    description: End the game you are playing in with /bw-solocontrols end.
+    default: op
+  solocontrols.end.spectating:
+    description: End the game you are spectating with /bw-solocontrols end.
     default: op
