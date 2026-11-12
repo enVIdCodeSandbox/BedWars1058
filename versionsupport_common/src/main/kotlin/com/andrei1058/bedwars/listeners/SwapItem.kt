@@ -18,26 +18,27 @@
  * Contact e-mail: andrew.dascalu@gmail.com
  */
 
-package com.andrei1058.bedwars.listeners;
+package com.andrei1058.bedwars.listeners
 
-import com.andrei1058.bedwars.api.arena.GameState;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
-
-import static com.andrei1058.bedwars.support.version.common.VersionCommon.api;
+import com.andrei1058.bedwars.api.arena.GameState
+import com.andrei1058.bedwars.support.version.common.VersionCommon.Companion.api
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerSwapHandItemsEvent
 
 // Prevent item swap.
-public class SwapItem implements Listener {
-
+open class SwapItem : Listener {
     @EventHandler
-    public void itemSwap(PlayerSwapHandItemsEvent e) {
-        if (e.isCancelled()) return;
+    open fun itemSwap(e: PlayerSwapHandItemsEvent) {
+        if (e.isCancelled()) {
+            return
+        }
         if (api.getArenaUtil().isPlaying(e.getPlayer())) {
-            if (api.getArenaUtil().getArenaByPlayer(e.getPlayer()).getStatus() != GameState.playing)
-                e.setCancelled(true);
+            if (api.getArenaUtil().getArenaByPlayer(e.getPlayer()).getStatus() != GameState.playing) {
+                e.setCancelled(true)
+            }
         } else if (api.getArenaUtil().isSpectating(e.getPlayer())) {
-            e.setCancelled(true);
+            e.setCancelled(true)
         }
     }
 }
