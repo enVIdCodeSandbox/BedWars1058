@@ -20,6 +20,7 @@
 
 package com.andrei1058.bedwars
 
+import com.andrei1058.bedwars.features.FeatureManager
 import com.andrei1058.bedwars.api.arena.IArena
 import com.andrei1058.bedwars.api.configuration.ConfigManager
 import com.andrei1058.bedwars.api.configuration.ConfigPath
@@ -117,6 +118,8 @@ open class BedWars : JavaPlugin() {
         }
         isPaper = ServerVersionResolver.detectPaper()
         plugin = this
+        // Built-in features load first: some prepare files this plugin reads while it starts.
+        FeatureManager.loadAll()
         //noinspection rawtypes
         var supp: Class<*>
         try {
@@ -194,6 +197,7 @@ open class BedWars : JavaPlugin() {
             Bukkit.getPluginManager().disablePlugin(this)
             return
         }
+        FeatureManager.enableEarly()
         nms.registerVersionListeners()
         if (!this.handleWorldAdapter()) {
             api.setRestoreAdapter(InternalAdapter(this))
@@ -438,6 +442,9 @@ open class BedWars : JavaPlugin() {
         SpoilPlayerTNTFeature.init()
         // Warn user if current server version support is deprecated
         this.performDeprecationCheck()
+        // The regular features start on the first tick: after this plugin finished enabling and after the
+        // early features (MapLoader, MultiGroup) hooked into it.
+        Bukkit.getScheduler().runTask(this, Runnable { FeatureManager.enableAll() })
     }
 
     /**
@@ -501,6 +508,7 @@ open class BedWars : JavaPlugin() {
         if (!serverSoftwareSupport) {
             return
         }
+        FeatureManager.disableAll()
         if (getServerType() == ServerType.BUNGEE) {
             ArenaSocket.disable()
         }
@@ -511,6 +519,7 @@ open class BedWars : JavaPlugin() {
                 ex.printStackTrace()
             }
         }
+        FeatureManager.disableEarly()
     }
 
     private fun loadArenasAndSigns() {

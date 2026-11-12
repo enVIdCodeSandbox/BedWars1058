@@ -149,3 +149,16 @@ Gradle plugin, sources are in `src/main/kotlin`).
 - `uninitialized()` and `.unchecked()` (see `api/util/JavaInterop.kt`) mark the places where the Java code relied on a
   value being allowed to be null. They keep the old behaviour; replace them with nullable types or `!!` when a place
   is known to be safe.
+
+## Built-in features
+
+These former addons are part of the plugin now (`bedwars-plugin/src/main/kotlin/com/andrei1058/bedwars/features`):
+
+| Feature | Folder / key | Commands |
+|---|---|---|
+
+- `plugins/BedWars1058/Features/features.yml` switches each feature on or off (restart to apply).
+- Every feature has its own settings in `plugins/BedWars1058/Features/<folder>/config.yml`.
+- On the first start, the settings folder of an old addon (`plugins/BedWars1058-Compass/` ...) is copied over.
+- Remove the old addon jars. While one is still installed, the built-in copy of that feature stays off.
+- A feature extends `Feature` and is registered in `BuiltInFeatures`. Commands and permissions are in `plugin.yml`.

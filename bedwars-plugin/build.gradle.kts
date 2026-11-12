@@ -83,7 +83,8 @@ listOf("runtimeClasspath", "testRuntimeClasspath", "testCompileClasspath").forEa
 }
 
 tasks.processResources {
-    include("plugin.yml")
+    // plugin.yml plus the default files of the built-in features (features/<id>/config.yml ...)
+    include("plugin.yml", "features/**")
     filesMatching("plugin.yml") {
         filter { it.replace("\${project.version}", project.version.toString()) }
     }

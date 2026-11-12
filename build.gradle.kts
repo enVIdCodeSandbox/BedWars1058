@@ -8,7 +8,7 @@
 
 plugins {
     // The whole project is Kotlin; the plugin is applied to every module below.
-    kotlin("jvm") version "2.0.21" apply false
+    kotlin("jvm") version "2.2.21" apply false
 }
 
 allprojects {
