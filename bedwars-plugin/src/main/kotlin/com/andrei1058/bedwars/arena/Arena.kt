@@ -875,8 +875,8 @@ open class Arena : IArena {
                 }
             }, 5L)
         }
-        /* Remove also the party */
-        if (getParty().hasParty(p)) {
+        /* Remove also the party. The built-in party outlives games (like on Hypixel), only other providers are disbanded. */
+        if (!getParty().isInternal() && getParty().hasParty(p)) {
             if (getParty().isOwner(p)) {
                 if (status != GameState.restarting) {
                     if (getParty().isInternal()) {
@@ -925,7 +925,7 @@ open class Arena : IArena {
         JoinNPC.updateNPCs(getGroup())
         // remove player from party if leaves and the owner is still in the arena while waiting or starting
         if (status == GameState.waiting || status == GameState.starting) {
-            if (BedWars.getParty().hasParty(p) && !BedWars.getParty().isOwner(p)) {
+            if (!BedWars.getParty().isInternal() && BedWars.getParty().hasParty(p) && !BedWars.getParty().isOwner(p)) {
                 for (pl in BedWars.getParty().getMembers(p)!!) {
                     if (BedWars.getParty().isOwner(pl) && pl.getWorld().getName().equals(getArenaName(), ignoreCase = true)) {
                         BedWars.getParty().removeFromParty(p)
@@ -1004,8 +1004,8 @@ open class Arena : IArena {
                 }
             })
         }
-        /* Remove also the party */
-        if (getParty().hasParty(p)) {
+        /* Remove also the party. The built-in party outlives games (like on Hypixel), only other providers are disbanded. */
+        if (!getParty().isInternal() && getParty().hasParty(p)) {
             if (getParty().isOwner(p)) {
                 if (status != GameState.restarting) {
                     if (getParty().isInternal()) {
