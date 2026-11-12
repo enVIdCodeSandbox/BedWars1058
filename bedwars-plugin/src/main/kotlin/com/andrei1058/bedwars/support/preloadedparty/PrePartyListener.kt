@@ -25,7 +25,6 @@ import com.andrei1058.bedwars.api.events.server.ArenaRestartEvent
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 
-@Deprecated("")
 open class PrePartyListener : Listener {
     @EventHandler
     open fun onDisable(e: ArenaDisableEvent) {
