@@ -139,3 +139,13 @@ If you are not a programmer you can help answering people in the [Issues](https:
 
 # Contact
 [![Discord Server](https://discordapp.com/api/guilds/201345265821679617/widget.png?style=banner3)](https://discord.gg/XdJfN2X)
+## Kotlin sources
+
+The whole project is written in Kotlin (converted from the former Java sources; every module builds with the Kotlin
+Gradle plugin, sources are in `src/main/kotlin`).
+
+- The JVM API is unchanged: method names, static members (`@JvmStatic` / `@JvmField`) and field names are the same,
+  so addons compiled against the Java version keep working.
+- `uninitialized()` and `.unchecked()` (see `api/util/JavaInterop.kt`) mark the places where the Java code relied on a
+  value being allowed to be null. They keep the old behaviour; replace them with nullable types or `!!` when a place
+  is known to be safe.

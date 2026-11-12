@@ -1,13 +1,13 @@
 // BedWars1058 - Gradle build (replaces the former Maven build, same modules and artifacts).
 //
-// Requirements: JDK 21 or newer to run Gradle. Each module compiles for the Java release it used with Maven
+// Requirements: JDK 21 or newer to run Gradle. All sources are Kotlin. Each module targets the Java release it used with Maven
 // (see `javaRelease` in the module scripts).
 //
 // NMS modules need the Spigot server artifacts (org.spigotmc:spigot:<version>-R0.1-SNAPSHOT) from the CodeMC "nms"
 // repository, or from `mavenLocal()` after running Spigot BuildTools with `--remapped` where needed.
 
 plugins {
-    // Kotlin is applied by the modules that contain Kotlin code (bedwars-plugin and the 1.21+/26.x version support).
+    // The whole project is Kotlin; the plugin is applied to every module below.
     kotlin("jvm") version "2.0.21" apply false
 }
 
@@ -81,6 +81,7 @@ val sidebarLibraryVersion = "25.2.2-SNAPSHOT"
 
 subprojects {
     apply(plugin = "java-library")
+    apply(plugin = "org.jetbrains.kotlin.jvm")
 
     if (name.startsWith("sidebar-")) {
         group = "com.andrei1058.spigot.sidebar"
@@ -98,8 +99,6 @@ subprojects {
         "compileOnly"("net.md-5:bungeecord-chat:1.8-SNAPSHOT")
         "compileOnly"("commons-io:commons-io:2.13.0")
         "compileOnly"("org.jetbrains:annotations:24.0.1")
-        "compileOnly"("org.projectlombok:lombok:1.18.36")
-        "annotationProcessor"("org.projectlombok:lombok:1.18.36")
     }
 
     tasks.withType<JavaCompile>().configureEach {
@@ -109,7 +108,7 @@ subprojects {
 
     tasks.withType<Javadoc>().configureEach { enabled = false }
 
-    // Modules with Kotlin code compile it for the same Java release as their Java code.
+    // Every module compiles Kotlin for the Java release it targeted when it was written in Java.
     pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
         afterEvaluate {
             val release = project.extra["javaRelease"] as Int
@@ -119,6 +118,13 @@ subprojects {
             }
             tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
                 compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(release.toString()))
+                compilerOptions.freeCompilerArgs.addAll(
+                    // interface methods with bodies stay real JVM default methods, like in the former Java sources
+                    "-Xjvm-default=all",
+                    // The sources were converted from Java, where passing null is not checked at method entry.
+                    // Keeping these checks off preserves that behaviour for callers (addons) that pass null.
+                    "-Xno-param-assertions", "-Xno-call-assertions", "-Xno-receiver-assertions"
+                )
             }
         }
     }
