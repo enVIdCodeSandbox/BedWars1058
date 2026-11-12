@@ -33,7 +33,7 @@ open class v1_21_R1(plugin: Plugin, name: String) : v1_20_R4(plugin, name) {
 
     override fun getTopInventory(player: Player?): Inventory? = player?.openInventory?.topInventory
 
-    override fun getTopInventory(event: InventoryEvent): Inventory = event.view.topInventory
+    override fun getTopInventory(event: InventoryEvent?): Inventory? = event?.view?.topInventory
 
     override fun getViewPlayer(event: InventoryEvent): HumanEntity = event.view.player
 

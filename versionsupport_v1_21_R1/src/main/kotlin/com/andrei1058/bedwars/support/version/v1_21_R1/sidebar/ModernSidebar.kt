@@ -9,5 +9,5 @@ import com.andrei1058.spigot.sidebar.WrappedSidebar
  * [ModernTabGroup]; the library base class only needs a subclass to instantiate.
  */
 class ModernSidebar(
-    title: SidebarLine, lines: Collection<SidebarLine>, placeholders: Collection<PlaceholderProvider>
+    title: SidebarLine, lines: MutableCollection<SidebarLine>, placeholders: MutableCollection<PlaceholderProvider>
 ) : WrappedSidebar(title, lines, placeholders)

@@ -35,7 +35,7 @@ open class ModernSidebarProvider(plugin: Plugin) : SidebarProvider() {
     }
 
     override fun createSidebar(
-        title: SidebarLine, lines: Collection<SidebarLine>, placeholders: Collection<PlaceholderProvider>
+        title: SidebarLine, lines: MutableCollection<SidebarLine>, placeholders: MutableCollection<PlaceholderProvider>
     ): Sidebar = ModernSidebar(title, lines, placeholders)
 
     override fun createObjective(
@@ -46,20 +46,20 @@ open class ModernSidebarProvider(plugin: Plugin) : SidebarProvider() {
         ModernScoreLine(sidebar, line, score, color, paper)
 
     override fun sendScore(sidebar: WrappedSidebar, playerName: String, score: Int) {
-        val healthObjective = sidebar.healthObjective as? ModernObjective ?: return
-        for (receiver in sidebar.receivers) {
+        val healthObjective = sidebar.getHealthObjective() as? ModernObjective ?: return
+        for (receiver in sidebar.getReceivers()) {
             healthObjective.find(receiver)?.getScore(playerName)?.score = score
         }
     }
 
     override fun createPlayerTab(
-        sidebar: WrappedSidebar, identifier: String, prefix: SidebarLine?, suffix: SidebarLine?,
+        sidebar: WrappedSidebar, identifier: String, prefix: SidebarLine, suffix: SidebarLine,
         pushingRule: PlayerTab.PushingRule, nameTagVisibility: PlayerTab.NameTagVisibility,
-        placeholders: Collection<PlaceholderProvider>?
+        placeholders: MutableCollection<PlaceholderProvider>?
     ): VersionedTabGroup =
         ModernTabGroup(sidebar, identifier, prefix, suffix, pushingRule, nameTagVisibility, placeholders)
 
-    override fun sendHeaderFooter(player: Player, header: String?, footer: String?) {
+    override fun sendHeaderFooter(player: Player, header: String, footer: String) {
         player.setPlayerListHeaderFooter(header ?: "", footer ?: "")
     }
 }

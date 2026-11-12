@@ -35,11 +35,11 @@ internal class ModernScoreLine(
     private fun entryName(): String = lineColor + "§r"
 
     private fun render(player: Player): String {
-        return sidebarLine.getTrimReplacePlaceholders(player, null, sidebar.placeholders) ?: ""
+        return sidebarLine.getTrimReplacePlaceholders(player, null, sidebar.getPlaceholders()) ?: ""
     }
 
     private fun objectiveOf(player: Player): Objective? {
-        return (sidebar.sidebarObjective as? ModernObjective)?.find(player)
+        return (sidebar.getSidebarObjective() as? ModernObjective)?.find(player)
     }
 
     override fun getLine(): SidebarLine = sidebarLine
@@ -53,7 +53,7 @@ internal class ModernScoreLine(
     override fun setScoreAmount(score: Int) {
         this.scoreAmount = score
         // the library shifts scores around without asking for an update (removing a line, for example)
-        for (player in sidebar.receivers) {
+        for (player in sidebar.getReceivers()) {
             if (!sentText.containsKey(player.uniqueId)) {
                 continue
             }
@@ -66,7 +66,7 @@ internal class ModernScoreLine(
     }
 
     override fun sendCreateToAllReceivers() {
-        for (player in sidebar.receivers) {
+        for (player in sidebar.getReceivers()) {
             sendCreate(player)
         }
     }
@@ -102,7 +102,7 @@ internal class ModernScoreLine(
         }
 
         if (paper) {
-            val rightText = (sidebarLine as? ScoredLine)?.score ?: ""
+            val rightText = (sidebarLine as? ScoredLine)?.getScore() ?: ""
             val previousRightText = sentRightText.put(player.uniqueId, rightText)
             if (rightText != previousRightText) {
                 PaperNumbers.apply(row, rightText)
@@ -116,7 +116,7 @@ internal class ModernScoreLine(
     }
 
     override fun sendUpdateToAllReceivers() {
-        for (player in sidebar.receivers) {
+        for (player in sidebar.getReceivers()) {
             sendUpdate(player)
         }
     }
@@ -126,7 +126,7 @@ internal class ModernScoreLine(
     }
 
     override fun sendRemoveToAllReceivers() {
-        for (player in sidebar.receivers) {
+        for (player in sidebar.getReceivers()) {
             sendRemove(player)
         }
     }
@@ -136,8 +136,8 @@ internal class ModernScoreLine(
         sentRightText.remove(player.uniqueId)
 
         val board = player.scoreboard
-        val objective = board.getObjective(sidebar.sidebarObjective.name)
-        objective?.scoreboard?.resetScores(entryName())
+        val objective = board.getObjective(sidebar.getSidebarObjective()!!.getName())
+        objective?.getScoreboard()?.resetScores(entryName())
         board.getTeam(teamName())?.unregister()
 
         BoardRegistry.releaseIfEmpty(player)
@@ -149,6 +149,6 @@ internal class ModernScoreLine(
 
     override fun compareTo(other: ScoreLine): Int {
         // ascending: the library gives a new line the score of the first one (the lowest) and then shifts the others up
-        return scoreAmount.compareTo(other.scoreAmount)
+        return scoreAmount.compareTo(other.getScoreAmount())
     }
 }

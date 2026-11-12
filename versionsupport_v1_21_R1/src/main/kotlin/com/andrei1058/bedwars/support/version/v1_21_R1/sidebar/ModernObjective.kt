@@ -34,7 +34,7 @@ internal class ModernObjective(
     override fun getTitle(): SidebarLine = titleLine
 
     private fun render(player: Player): String {
-        return titleLine.getTrimReplacePlaceholders(player, null, sidebar.placeholders) ?: ""
+        return titleLine.getTrimReplacePlaceholders(player, null, sidebar.getPlaceholders()) ?: ""
     }
 
     /** The objective as registered on the player's own board, or null if not created yet. */
@@ -62,7 +62,7 @@ internal class ModernObjective(
     }
 
     override fun sendUpdate() {
-        for (player in sidebar.receivers) {
+        for (player in sidebar.getReceivers()) {
             find(player)?.displayName = render(player)
         }
     }
@@ -76,9 +76,9 @@ internal class ModernObjective(
     override fun getName(): String = objectiveName
 
     override fun refreshTitle(): Boolean {
-        val newTitle = titleLine.getTrimReplacePlaceholders(null, null, sidebar.placeholders) ?: ""
+        val newTitle = titleLine.getTrimReplacePlaceholders(null, null, sidebar.getPlaceholders()) ?: ""
         val changed = newTitle != renderedTitle
         renderedTitle = newTitle
-        return changed || titleLine.isHasPlaceholders
+        return changed || titleLine.isHasPlaceholders()
     }
 }

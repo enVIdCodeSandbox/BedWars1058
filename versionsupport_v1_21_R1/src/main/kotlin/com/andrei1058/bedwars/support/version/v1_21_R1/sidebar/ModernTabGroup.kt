@@ -20,7 +20,7 @@ internal class ModernTabGroup(
     private val suffix: SidebarLine?,
     private var pushingRule: PlayerTab.PushingRule,
     private var nameTagVisibility: PlayerTab.NameTagVisibility,
-    private val placeholders: Collection<PlaceholderProvider>?
+    private val placeholders: MutableCollection<PlaceholderProvider>?
 ) : VersionedTabGroup {
 
     private val members = CopyOnWriteArrayList<Player>()
@@ -33,7 +33,7 @@ internal class ModernTabGroup(
         if (line == null) {
             return ""
         }
-        return line.getTrimReplacePlaceholders(receiver, null, placeholders) ?: ""
+        return line.getTrimReplacePlaceholders(receiver, null, placeholders!!) ?: ""
     }
 
     /** Makes the receiver's board contain this team exactly as currently configured. */
@@ -97,19 +97,19 @@ internal class ModernTabGroup(
     }
 
     override fun sendUserCreateToReceivers(player: Player) {
-        for (receiver in sidebar.receivers) {
+        for (receiver in sidebar.getReceivers()) {
             applyTo(receiver)
         }
     }
 
     override fun sendUpdateToReceivers() {
-        for (receiver in sidebar.receivers) {
+        for (receiver in sidebar.getReceivers()) {
             applyTo(receiver)
         }
     }
 
     override fun sendRemoveToReceivers() {
-        for (receiver in sidebar.receivers) {
+        for (receiver in sidebar.getReceivers()) {
             removeFrom(receiver)
         }
     }
@@ -125,7 +125,7 @@ internal class ModernTabGroup(
         if (!members.contains(player)) {
             members.add(player)
         }
-        for (receiver in sidebar.receivers) {
+        for (receiver in sidebar.getReceivers()) {
             val team = receiver.scoreboard.getTeam(teamName())
             if (team != null && !team.hasEntry(player.name)) {
                 team.addEntry(player.name)
@@ -135,7 +135,7 @@ internal class ModernTabGroup(
 
     override fun remove(player: Player) {
         members.remove(player)
-        for (receiver in sidebar.receivers) {
+        for (receiver in sidebar.getReceivers()) {
             receiver.scoreboard.getTeam(teamName())?.removeEntry(player.name)
         }
         if (player.isOnline) {
