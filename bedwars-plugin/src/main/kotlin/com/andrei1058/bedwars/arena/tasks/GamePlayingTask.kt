@@ -130,11 +130,14 @@ open class GamePlayingTask(private var arena: Arena) : Runnable, PlayingTask {
                         }
                     }
                     getArena().updateNextEvent()
-                    for (team in arena.getTeams()!!) {
-                        for (o in team.getGenerators()) {
-                            val l = o.getLocation()
-                            for (y in 0 until 20) {
-                                l!!.clone().subtract(0.0, y.toDouble(), 0.0).getBlock().setType(Material.AIR)
+                    // The GeneratorFix feature keeps the blocks below the team generators (no hole for resources to fall through).
+                    if (!com.andrei1058.bedwars.features.generatorfix.GeneratorFixPlugin.keepsGeneratorBase(arena.getArenaName())) {
+                        for (team in arena.getTeams()!!) {
+                            for (o in team.getGenerators()) {
+                                val l = o.getLocation()
+                                for (y in 0 until 20) {
+                                    l!!.clone().subtract(0.0, y.toDouble(), 0.0).getBlock().setType(Material.AIR)
+                                }
                             }
                         }
                     }

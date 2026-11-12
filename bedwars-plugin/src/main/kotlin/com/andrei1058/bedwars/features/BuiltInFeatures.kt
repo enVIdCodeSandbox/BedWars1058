@@ -3,6 +3,7 @@ package com.andrei1058.bedwars.features
 import com.andrei1058.bedwars.features.arenamanagement.ArenaManagementPlugin
 import com.andrei1058.bedwars.features.easysetup.EasySetupPlugin
 import com.andrei1058.bedwars.features.generalfixes.GeneralFixesPlugin
+import com.andrei1058.bedwars.features.generatorfix.GeneratorFixPlugin
 import com.andrei1058.bedwars.features.maploader.WorldLoaderPlugin
 import com.andrei1058.bedwars.features.multigroup.MultiGroupPlugin
 
@@ -17,5 +18,6 @@ internal object BuiltInFeatures {
         FeatureManager.register(EasySetupPlugin())
         // Gameplay.
         FeatureManager.register(GeneralFixesPlugin())
+        FeatureManager.register(GeneratorFixPlugin())
     }
 }

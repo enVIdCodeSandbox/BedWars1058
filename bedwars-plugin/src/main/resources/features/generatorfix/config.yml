@@ -1,0 +1,11 @@
+# GeneratorFix
+#
+# When sudden death starts, the game used to delete the 20 blocks directly below every team generator,
+# which leaves a hole the resources fall through.
+
+# true  = leave those blocks alone (the fix)
+# false = old behaviour: the blocks are removed
+keep-generator-base: true
+
+# Log every time the blocks are kept.
+debug: false
