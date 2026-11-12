@@ -44,7 +44,7 @@ open class NoParty : Party {
     override fun createParty(owner: Player, vararg members: Player) {
     }
 
-    override fun addMember(owner: Player?, member: Player?) {
+    override fun addMember(owner: Player, member: Player?) {
     }
 
     override fun removeFromParty(member: Player) {

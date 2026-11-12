@@ -100,7 +100,7 @@ open class PartiesAdapter : Party {
         }
     }
 
-    override fun addMember(owner: Player?, member: Player?) {
+    override fun addMember(owner: Player, member: Player?) {
         //party operations handled on bungee server side
         if (!api.isBungeeCordEnabled()) {
             val partyPlayer: PartyPlayer? = api.getPartyPlayer(owner!!.getUniqueId())

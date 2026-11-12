@@ -34,7 +34,7 @@ interface Party {
 
     fun createParty(owner: Player, vararg members: Player)
 
-    fun addMember(owner: Player?, member: Player?)
+    fun addMember(owner: Player, member: Player?)
 
     fun removeFromParty(member: Player)
 

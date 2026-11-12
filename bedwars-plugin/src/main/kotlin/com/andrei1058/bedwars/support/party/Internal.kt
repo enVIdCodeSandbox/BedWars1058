@@ -20,183 +20,80 @@
 
 package com.andrei1058.bedwars.support.party
 
-import com.andrei1058.bedwars.api.language.Language.Companion.getMsg
-import com.andrei1058.bedwars.api.language.Messages
 import com.andrei1058.bedwars.api.party.Party
+import com.andrei1058.bedwars.party.PartyService
 import java.util.ArrayList
-import java.util.Collections
+import java.util.UUID
 import org.bukkit.entity.Player
-import org.jetbrains.annotations.Contract
 
+/**
+ * Built-in party provider. The rules live in {@link PartyService}; this adapter only exposes them through the
+ * {@link Party} API the arenas use.
+ */
 open class Internal : Party {
     override fun hasParty(p: Player): Boolean {
-        for (party in getParites()) {
-            if (party.members.contains(p)) {
-                return true
-            }
-        }
-        return false
+        return PartyService.partyOf(p) != null
     }
 
     override fun partySize(p: Player): Int {
-        for (party in getParites()) {
-            if (party.members.contains(p)) {
-                return party.members.size
-            }
-        }
-        return 0
+        val party: PartyService.Party? = PartyService.partyOf(p)
+        return if (party == null) 0 else party.members.size
     }
 
     override fun isOwner(p: Player): Boolean {
-        for (party in getParites()) {
-            if (party.members.contains(p)) {
-                if (party.owner === p) {
-                    return true
-                }
-            }
-        }
-        return false
+        return PartyService.isLeader(p)
     }
 
     override fun getMembers(owner: Player): MutableList<Player>? {
-        for (party in getParites()) {
-            if (party.members.contains(owner)) {
-                return party.members
-            }
-        }
-        return null
+        val party: PartyService.Party? = PartyService.partyOf(owner)
+        return if (party == null) null else ArrayList(party.online())
     }
 
     override fun createParty(owner: Player, vararg members: Player) {
-        val p = Party(owner)
-        p.addMember(owner)
-        for (mem in members) {
-            p.addMember(mem)
-        }
+        PartyService.create(owner, *members)
     }
 
-    override fun addMember(owner: Player?, member: Player?) {
-        if (owner == null || member == null) {
-            return
+    override fun addMember(owner: Player, member: Player?) {
+        val party: PartyService.Party? = PartyService.partyOf(owner)
+        if (party != null && member != null) {
+            PartyService.join(party, member, false)
         }
-        val p: Internal.Party? = getParty(owner)
-        if (p == null) {
-            return
-        }
-        p.addMember(member)
     }
 
     override fun removeFromParty(member: Player) {
-        for (p in ArrayList(getParites())) {
-            if (p.owner === member) {
-                disband(member)
-            } else if (p.members.contains(member)) {
-                for (mem in p.members) {
-                    mem.sendMessage(getMsg(mem, Messages.COMMAND_PARTY_LEAVE_SUCCESS).replace("{playername}", member.getName()).replace("{player}", member.getDisplayName()))
-                }
-                p.members.remove(member)
-                if (p.members.isEmpty() || p.members.size == 1) {
-                    disband(p.owner)
-                    parites.remove(p)
-                }
-                return
-            }
-        }
+        PartyService.leave(member, true)
     }
 
     override fun disband(owner: Player) {
-        val pa: Internal.Party? = getParty(owner)
-        if (pa == null) {
-            return
+        val party: PartyService.Party? = PartyService.partyOf(owner)
+        if (party != null) {
+            PartyService.disbandParty(party)
         }
-        for (p in pa.members) {
-            p.sendMessage(getMsg(p, Messages.COMMAND_PARTY_DISBAND_SUCCESS))
-        }
-        pa.members.clear()
-        Internal.parites.remove(pa)
     }
 
     override fun isMember(owner: Player, check: Player): Boolean {
-        for (p in parites) {
-            if (p.owner === owner) {
-                if (p.members.contains(check)) {
-                    return true
-                }
-            }
-        }
-        return false
+        val party: PartyService.Party? = PartyService.partyOf(owner)
+        return party != null && party.getMembers().contains(check.getUniqueId())
     }
 
     override fun removePlayer(owner: Player, target: Player) {
-        val p: Party? = getParty(owner)
-        if (p != null) {
-            if (p.members.contains(target)) {
-                for (mem in p.members) {
-                    mem.sendMessage(getMsg(mem, Messages.COMMAND_PARTY_REMOVE_SUCCESS).replace("{player}", target.getName()))
-                }
-                p.members.remove(owner)
-                if (p.members.isEmpty() || p.members.size == 1) {
-                    disband(p.owner)
-                    parites.remove(p)
-                }
-            }
-        }
+        PartyService.kick(owner, target.getName())
     }
 
     override fun getOwner(member: Player): Player? {
-        for (party in Internal.getParites()) {
-            if (party.members.contains(member)) {
-                return party.owner
-            }
+        val party: PartyService.Party? = PartyService.partyOf(member)
+        if (party == null) {
+            return null
         }
-        return null
+        val leader = party.getLeader()
+        return org.bukkit.Bukkit.getPlayer(leader)
     }
 
     override fun promote(owner: Player, target: Player) {
-        val p: Party? = getParty(owner)
-        if (p != null) {
-            p.owner = target
-        }
+        PartyService.transfer(owner, target.getName())
     }
 
     override fun isInternal(): Boolean {
         return true
-    }
-
-    private fun getParty(owner: Player): Party? {
-        for (p in getParites()) {
-            if (p.getOwner() === owner) {
-                return p
-            }
-        }
-        return null
-    }
-
-    open class Party(p: Player) {
-        @JvmField var members: MutableList<Player> = ArrayList()
-        @JvmField var owner: Player
-
-        open fun getOwner(): Player {
-            return owner
-        }
-
-        open fun addMember(p: Player) {
-            members.add(p)
-        }
-
-        init {
-            owner = p
-            Internal.parites.add(this)
-        }
-    }
-
-    companion object {
-        private var parites: MutableList<Internal.Party> = ArrayList()
-
-        @Contract(pure = true)
-        @JvmStatic
-        fun getParites(): MutableList<Party> {
-            return Collections.unmodifiableList(parites)
-        }
     }
 }

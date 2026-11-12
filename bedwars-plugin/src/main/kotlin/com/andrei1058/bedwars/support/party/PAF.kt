@@ -60,7 +60,7 @@ open class PAF : Party {
         party.setPrivateState(true)
     }
 
-    override fun addMember(owner: Player?, member: Player?) {
+    override fun addMember(owner: Player, member: Player?) {
         val party = PAFPlayerManager.getInstance().getPlayer(owner).getParty()
         party.setPrivateState(false)
         party.addPlayer(PAFPlayerManager.getInstance().getPlayer(member))
