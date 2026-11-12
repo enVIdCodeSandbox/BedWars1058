@@ -3,7 +3,7 @@ plugins {
     id("com.gradleup.shadow") version "8.3.5"
 }
 
-// The core is mostly Java; Kotlin is used for newer code (see src/main/kotlin).
+// The core is written in Kotlin (converted from Java), sources are in src/main/kotlin.
 
 dependencies {
     // ---- bundled into the final jar (relocated where needed, see shadowJar) ----
