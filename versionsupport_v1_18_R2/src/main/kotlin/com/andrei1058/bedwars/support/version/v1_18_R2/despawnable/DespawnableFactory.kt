@@ -20,7 +20,7 @@ class DespawnableFactory(
     private val hurtTracker: HurtTracker
 ) {
 
-    private val plugin = versionSupport.plugin
+    private val plugin = versionSupport.getPlugin()
     private val paperGoalsAvailable = VersionCompat.isPaper()
     private var fallbackWarningShown = false
 
@@ -84,7 +84,7 @@ class DespawnableFactory(
         return language.m(nameTemplate)
             .replace("{despawn}", attributes.despawnSeconds.toString())
             .replace("{health}", fullHealthBar)
-            .replace("{TeamColor}", team.color.chat().toString())
+            .replace("{TeamColor}", team.getColor().chat().toString())
     }
 
     private fun applyDefaultSettings(entity: LivingEntity, attributes: DespawnableAttributes, team: ITeam) {

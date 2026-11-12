@@ -41,16 +41,16 @@ class TeamTargeting(
     internal fun isEnemy(entity: LivingEntity): Boolean {
         if (entity is Player) {
             val playerId = entity.uniqueId
-            val arena = team.arena
-            val isOutOfTheFight = arena.isReSpawning(playerId) || arena.isSpectator(playerId)
+            val arena = team.getArena()
+            val isOutOfTheFight = arena!!.isReSpawning(playerId) || arena!!.isSpectator(playerId)
             return !entity.isDead && !team.wasMember(playerId) && !isOutOfTheFight
         }
         return !isMobOfSameTeam(entity)
     }
 
     private fun isMobOfSameTeam(entity: Entity): Boolean {
-        val despawnable = versionSupport.despawnablesList[entity.uniqueId]
-        return despawnable != null && despawnable.team === team
+        val despawnable = versionSupport.getDespawnablesList()[entity.uniqueId]
+        return despawnable != null && despawnable.getTeam() === team
     }
 
     /**

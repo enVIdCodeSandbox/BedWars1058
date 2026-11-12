@@ -21,7 +21,7 @@ class HurtTracker(private val versionSupport: VersionSupport) : Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     fun onDamage(event: EntityDamageByEntityEvent) {
         val victimId = event.entity.uniqueId
-        val victimIsTeamMob = versionSupport.despawnablesList.containsKey(victimId)
+        val victimIsTeamMob = versionSupport.getDespawnablesList().containsKey(victimId)
         if (!victimIsTeamMob) return
 
         var attacker: Entity? = event.damager

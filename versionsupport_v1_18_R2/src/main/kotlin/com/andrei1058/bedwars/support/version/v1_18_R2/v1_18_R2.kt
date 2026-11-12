@@ -88,13 +88,13 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
 
     override fun registerVersionListeners() {
         VersionCommon(this)
-        Bukkit.getPluginManager().registerEvents(hurtTracker, plugin)
+        Bukkit.getPluginManager().registerEvents(hurtTracker, getPlugin())
     }
 
     override fun registerCommand(name: String, cmd: Command) {
         val commandMap = VersionCompat.commandMap()
         if (commandMap == null) {
-            plugin.logger.severe("Could not access the server command map. /$name was not registered.")
+            getPlugin().logger.severe("Could not access the server command map. /$name was not registered.")
             return
         }
         commandMap.register(name, cmd)
@@ -109,7 +109,7 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
     // items
     // ---------------------------------------------------------------------------------------------
 
-    override fun getTag(itemStack: ItemStack?, key: String): String? = tags.get(itemStack, key)
+    override fun getTag(itemStack: ItemStack, key: String): String? = tags.get(itemStack, key)
 
     override fun addCustomData(itemStack: ItemStack, data: String): ItemStack =
         tags.set(itemStack, PLUGIN_TAG_GENERIC_KEY, data)
@@ -117,21 +117,21 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
     override fun setTag(itemStack: ItemStack, key: String, value: String): ItemStack =
         tags.set(itemStack, key, value)
 
-    override fun isCustomBedWarsItem(itemStack: ItemStack?): Boolean = tags.has(itemStack, PLUGIN_TAG_GENERIC_KEY)
+    override fun isCustomBedWarsItem(itemStack: ItemStack): Boolean = tags.has(itemStack, PLUGIN_TAG_GENERIC_KEY)
 
-    override fun getCustomData(itemStack: ItemStack?): String {
+    override fun getCustomData(itemStack: ItemStack): String {
         // the NBT based versions returned an empty string for an absent tag
         return tags.get(itemStack, PLUGIN_TAG_GENERIC_KEY) ?: ""
     }
 
-    override fun getShopUpgradeIdentifier(itemStack: ItemStack?): String {
+    override fun getShopUpgradeIdentifier(itemStack: ItemStack): String {
         return tags.get(itemStack, PLUGIN_TAG_TIER_KEY) ?: "null"
     }
 
     override fun setShopUpgradeIdentifier(itemStack: ItemStack, identifier: String): ItemStack =
         tags.set(itemStack, PLUGIN_TAG_TIER_KEY, identifier)
 
-    override fun getDamage(itemStack: ItemStack?): Double {
+    override fun getDamage(itemStack: ItemStack): Double {
         // Same as the NMS versions: a numeric tag named "generic.attackDamage" if present, 0 otherwise.
         return tags.getDouble(itemStack, ATTACK_DAMAGE_TAG) ?: 0.0
     }
@@ -160,26 +160,26 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
         return itemStack != null && itemStack.type.name.endsWith(suffix)
     }
 
-    override fun isArmor(itemStack: ItemStack?): Boolean {
+    override fun isArmor(itemStack: ItemStack): Boolean {
         val isArmorPiece = nameEndsWith(itemStack, "_HELMET") || nameEndsWith(itemStack, "_CHESTPLATE")
                 || nameEndsWith(itemStack, "_LEGGINGS") || nameEndsWith(itemStack, "_BOOTS")
         val isElytra = itemStack != null && itemStack.type == Material.ELYTRA
         return isArmorPiece || isElytra
     }
 
-    override fun isTool(itemStack: ItemStack?): Boolean {
+    override fun isTool(itemStack: ItemStack): Boolean {
         // pickaxes, axes, shovels and hoes
         return nameEndsWith(itemStack, "_PICKAXE") || nameEndsWith(itemStack, "_AXE")
                 || nameEndsWith(itemStack, "_SHOVEL") || nameEndsWith(itemStack, "_HOE")
     }
 
-    override fun isSword(itemStack: ItemStack?): Boolean = nameEndsWith(itemStack, "_SWORD")
+    override fun isSword(itemStack: ItemStack): Boolean = nameEndsWith(itemStack, "_SWORD")
 
-    override fun isAxe(itemStack: ItemStack?): Boolean = nameEndsWith(itemStack, "_AXE")
+    override fun isAxe(itemStack: ItemStack): Boolean = nameEndsWith(itemStack, "_AXE")
 
-    override fun isBow(itemStack: ItemStack?): Boolean = itemStack != null && itemStack.type == Material.BOW
+    override fun isBow(itemStack: ItemStack): Boolean = itemStack != null && itemStack.type == Material.BOW
 
-    override fun isProjectile(itemStack: ItemStack?): Boolean {
+    override fun isProjectile(itemStack: ItemStack): Boolean {
         // The NMS versions asked the item for the entity it is displayed as, which is never a projectile for
         // a plain inventory item. Kept as is: callers also filter by material through Misc#isProjectile.
         return false
@@ -194,7 +194,7 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
     override fun colourItem(itemStack: ItemStack?, bedWarsTeam: ITeam): ItemStack? {
         if (itemStack == null) return null
 
-        val teamColor = bedWarsTeam.color
+        val teamColor = bedWarsTeam.getColor()
         val material = itemStack.type
         val materialName = material.toString()
         val amount = itemStack.amount
@@ -215,7 +215,7 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
         return try {
             ItemStack(Material.valueOf(material), amount)
         } catch (invalidMaterialName: Exception) {
-            plugin.logger.log(Level.WARNING, "$material is not a valid ${getName()} material!")
+            getPlugin().logger.log(Level.WARNING, "$material is not a valid ${getName()} material!")
             ItemStack(Material.BEDROCK)
         }
     }
@@ -284,11 +284,11 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
     // The 1.21 module overrides these three methods with versions compiled against the new API.
     override fun getTopInventory(player: Player?): Inventory? = player?.openInventory?.topInventory
 
-    override fun getTopInventory(event: InventoryEvent): Inventory = event.view.topInventory
+    override fun getTopInventory(event: InventoryEvent?): Inventory? = event?.view?.topInventory
 
     override fun getViewPlayer(event: InventoryEvent): HumanEntity = event.view.player
 
-    override fun getSound(name: String?): Sound = VersionCompat.sound(name)
+    override fun getSound(name: String): Sound = VersionCompat.sound(name)
 
     override fun setUnbreakable(itemMeta: ItemMeta) {
         itemMeta.isUnbreakable = true
@@ -311,7 +311,7 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
     }
 
     override fun hideEntity(entity: Entity, viewer: Player) {
-        viewer.hideEntity(plugin, entity)
+        viewer.hideEntity(getPlugin(), entity)
     }
 
     override fun voidKill(player: Player) {
@@ -350,13 +350,13 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
         if (!arena.isPlayer(respawned)) return
 
         // if the method was used while the player was still on the re-spawning screen
-        if (arena.respawnSessions.containsKey(respawned)) return
+        if (arena.getRespawnSessions()!!.containsKey(respawned)) return
 
-        for (otherPlayer in arena.players) {
+        for (otherPlayer in arena.getPlayers()!!) {
             if (otherPlayer == null) continue
             if (otherPlayer == respawned) continue
             // players on the re-spawning screen are not in the world yet
-            if (arena.respawnSessions.containsKey(otherPlayer)) continue
+            if (arena.getRespawnSessions()!!.containsKey(otherPlayer)) continue
             if (!isWithinRenderDistance(respawned, otherPlayer, arena)) continue
 
             // the other player sees the respawned one
@@ -371,12 +371,12 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
             }
         }
 
-        for (spectator in arena.spectators) {
+        for (spectator in arena.getSpectators()!!) {
             if (spectator == null) continue
             if (spectator == respawned) continue
 
             // spectators are never visible to players
-            respawned.hidePlayer(plugin, spectator)
+            respawned.hidePlayer(getPlugin(), spectator)
             if (isWithinRenderDistance(respawned, spectator, arena)) {
                 resendEntity(spectator, respawned)
             }
@@ -385,15 +385,15 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
 
     private fun isWithinRenderDistance(first: Player, second: Player, arena: IArena): Boolean {
         return first.world == second.world
-                && first.location.distance(second.location) <= arena.renderDistance
+                && first.location.distance(second.location) <= arena.getRenderDistance()
     }
 
     /**
      * Makes the viewer receive the entity again (spawn, rotation, velocity and equipment).
      */
     private fun resendEntity(viewer: Player, entity: Player) {
-        viewer.hideEntity(plugin, entity)
-        viewer.showEntity(plugin, entity)
+        viewer.hideEntity(getPlugin(), entity)
+        viewer.showEntity(getPlugin(), entity)
     }
 
     override fun setCollide(player: Player, arena: IArena?, value: Boolean) {
@@ -407,11 +407,11 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
     }
 
     override fun spigotShowPlayer(victim: Player, receiver: Player) {
-        receiver.showPlayer(plugin, victim)
+        receiver.showPlayer(getPlugin(), victim)
     }
 
     override fun spigotHidePlayer(victim: Player, receiver: Player) {
-        receiver.hidePlayer(plugin, victim)
+        receiver.hidePlayer(getPlugin(), victim)
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
         // nothing to register: no custom entity classes are needed without NMS
     }
 
-    override fun spawnShop(location: Location, nameMessage: String, players: List<Player>, arena: IArena) {
+    override fun spawnShop(location: Location, nameMessage: String, players: MutableList<Player>, arena: IArena) {
         val world = location.world ?: return
 
         spawnShopVillager(world, location)
@@ -430,21 +430,21 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
         // every player reads the name in their own language, so each gets their own hologram
         for (viewer in players) {
             val nameLines = Language.getMsg(viewer, nameMessage).split(",")
-            val languageIso = Language.getPlayerLanguage(viewer).iso
+            val languageIso = Language.getPlayerLanguage(viewer).getIso()
 
             val hasSubtitle = nameLines.size > 1
             if (hasSubtitle) {
                 val title = createHologramLine(nameLines[0], location.clone().add(0.0, TITLE_LINE_HEIGHT, 0.0))
                 val subtitle = createHologramLine(nameLines[1], location.clone().add(0.0, SUBTITLE_LINE_HEIGHT, 0.0))
-                ShopHolo(languageIso, title, subtitle, location, arena)
+                ShopHolo(languageIso!!, title, subtitle, location, arena)
             } else {
                 val line = createHologramLine(nameLines[0], location.clone().add(0.0, SINGLE_LINE_HEIGHT, 0.0))
-                ShopHolo(languageIso, line, null, location, arena)
+                ShopHolo(languageIso!!, line, null, location, arena)
             }
         }
 
         for (hologram in ShopHolo.getShopHolo()) {
-            if (hologram.a === arena) {
+            if (hologram.getA() === arena) {
                 hologram.update()
             }
         }
@@ -512,7 +512,7 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
     override fun spawnDragon(location: Location?, team: ITeam) {
         val world = location?.world
         if (location == null || world == null) {
-            plugin.logger.log(Level.WARNING, "Could not spawn Dragon. Location is null")
+            getPlugin().logger.log(Level.WARNING, "Could not spawn Dragon. Location is null")
             return
         }
         val dragon = world.spawnEntity(location, EntityType.ENDER_DRAGON) as EnderDragon
@@ -524,11 +524,11 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
         // true, so this has always been a no-op. Kept identical on purpose.
         for (offsetX in -1..1) {
             for (offsetZ in -1..1) {
-                val nearbyBlock: BlockState = team.bed.clone().add(offsetX.toDouble(), 0.0, offsetZ.toDouble())
+                val nearbyBlock: BlockState = team.getBed()!!.clone().add(offsetX.toDouble(), 0.0, offsetZ.toDouble())
                     .block.state
                 val blockState: Any = nearbyBlock
                 if (blockState is Bed) {
-                    nearbyBlock.type = team.color.bedMaterial()
+                    nearbyBlock.type = team.getColor().bedMaterial()
                     nearbyBlock.update()
                 }
             }
@@ -538,15 +538,15 @@ open class v1_18_R2(plugin: Plugin, name: String) : VersionSupport(plugin, name)
     override fun registerTntWhitelist(endStoneBlastResistance: Float, glassBlastResistance: Float) {
         try {
             if (!BlastResistance.apply(endStoneBlastResistance, glassBlastResistance)) {
-                plugin.logger.warning(
+                getPlugin().logger.warning(
                     "Could not find the block blast resistance on this server version. " +
                             "Glass and end stone TNT protection is disabled."
                 )
             }
         } catch (failure: ReflectiveOperationException) {
-            plugin.logger.log(Level.WARNING, "Could not apply TNT protection to glass and end stone.", failure)
+            getPlugin().logger.log(Level.WARNING, "Could not apply TNT protection to glass and end stone.", failure)
         } catch (failure: RuntimeException) {
-            plugin.logger.log(Level.WARNING, "Could not apply TNT protection to glass and end stone.", failure)
+            getPlugin().logger.log(Level.WARNING, "Could not apply TNT protection to glass and end stone.", failure)
         }
     }
 
