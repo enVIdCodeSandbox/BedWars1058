@@ -8,6 +8,7 @@ import com.andrei1058.bedwars.features.generalfixes.GeneralFixesPlugin
 import com.andrei1058.bedwars.features.generatorfix.GeneratorFixPlugin
 import com.andrei1058.bedwars.features.invisfix.InvisFixPlugin
 import com.andrei1058.bedwars.features.maploader.WorldLoaderPlugin
+import com.andrei1058.bedwars.features.mobspawn.MobSpawnPlugin
 import com.andrei1058.bedwars.features.multigroup.MultiGroupPlugin
 import com.andrei1058.bedwars.features.revive.BedWarsRevive
 
@@ -27,5 +28,6 @@ internal object BuiltInFeatures {
         FeatureManager.register(InvisFixPlugin())
         FeatureManager.register(BedWars1058Compass())
         FeatureManager.register(BedWarsRevive())
+        FeatureManager.register(MobSpawnPlugin())
     }
 }
