@@ -22,11 +22,6 @@ commands:
     usage: /<command> help
     aliases: [bwmultigroup, multigroup]
     permission: bw1058multigroup.admin
-  # ArenaManagement
-  arenamanagement:
-    description: Reload or inspect BedWars1058-ArenaManagement.
-    usage: /arenamanagement <reload|menu|gui [group]>
-    aliases: [bwam]
   # EasySetup
   bwsetup:
     description: Start hotbar setup mode and open the setup menu.

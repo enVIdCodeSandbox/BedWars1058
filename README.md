@@ -158,7 +158,6 @@ These former addons are part of the plugin now (`bedwars-plugin/src/main/kotlin/
 |---|---|---|
 | MapLoader | `maploader` | `/bwloader` |
 | MultiGroup | `multigroup` | `/bwmg` |
-| ArenaManagement | `arenamanagement` | `/arenamanagement` |
 | EasySetup | `easysetup` | `/bwsetup`, `/bwauto`, `/nextgen` |
 | GeneralFixes | `generalfixes` | `/bwfixes` |
 | GeneratorFix | `generatorfix` | - |

@@ -1,7 +1,6 @@
 package com.andrei1058.bedwars.features
 
 import com.andrei1058.bedwars.features.arenajoinmessage.ArenaJoinMessagePlugin
-import com.andrei1058.bedwars.features.arenamanagement.ArenaManagementPlugin
 import com.andrei1058.bedwars.features.compass.BedWars1058Compass
 import com.andrei1058.bedwars.features.dragonfix.DragonFixPlugin
 import com.andrei1058.bedwars.features.easysetup.EasySetupPlugin
@@ -23,7 +22,6 @@ internal object BuiltInFeatures {
         FeatureManager.register(WorldLoaderPlugin())
         FeatureManager.register(MultiGroupPlugin())
         // Arena tooling (uses the two above when they are on).
-        FeatureManager.register(ArenaManagementPlugin())
         FeatureManager.register(EasySetupPlugin())
         // Gameplay.
         FeatureManager.register(GeneralFixesPlugin())
