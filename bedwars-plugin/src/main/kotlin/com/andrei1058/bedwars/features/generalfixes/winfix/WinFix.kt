@@ -93,7 +93,7 @@ class WinFix(plugin: FixPlugin, section: String) : Fix(plugin, section) {
     private fun scheduleRefresh(arena: IArena) {
         val key = arena.getArenaName()
         pending.remove(key)?.cancel()
-        pending[key] = Bukkit.getScheduler().runTaskLater(plugin.host, Runnable {
+        pending[key!!] = Bukkit.getScheduler().runTaskLater(plugin.host, Runnable {
             pending.remove(key)
             try {
                 val rebuilt = renderer()?.render(arena) ?: 0

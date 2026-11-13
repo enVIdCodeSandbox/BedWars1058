@@ -29,7 +29,7 @@ object WorldLayout {
     fun isModernServer(): Boolean {
         val v = Bukkit.getBukkitVersion()
         var end: Int = 0
-        while (end < v.length() && Character.isDigit(v[end])) {
+        while (end < v.length && Character.isDigit(v[end])) {
             end++
         }
         if (end == 0) {
@@ -48,7 +48,7 @@ object WorldLayout {
         if (!isModernServer()) {
             return File(Bukkit.getWorldContainer(), name)
         }
-        return File(levelDirectory(), "dimensions/minecraft/" + name.toLowerCase(Locale.ENGLISH).replace(' ', '_'))
+        return File(levelDirectory(), "dimensions/minecraft/" + name.lowercase(Locale.ENGLISH).replace(' ', '_'))
     }
 
     /** The folder of the main level ("world"). */

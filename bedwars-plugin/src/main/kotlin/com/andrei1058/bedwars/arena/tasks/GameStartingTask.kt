@@ -149,7 +149,7 @@ open class GameStartingTask(arena: Arena) : Runnable, StartingTask {
      */
     private fun legacyDigits(text: String?): String {
         if (nms.getVersion() > 0 || text == null) {
-            return text
+            return text!!
         }
         return text.replace("\u2776", "1").replace("\u2777", "2").replace("\u2778", "3").replace("\u2779", "4").replace("\u277A", "5")
     }

@@ -56,8 +56,8 @@ object TeamSelectorGUI {
      */
     @JvmStatic
     fun openGUI(player: Player, update: Boolean) {
-        val arena = BedWars.getAPI().arenaUtil.getArenaByPlayer(player) ?: return
-        if (arena.status == GameState.playing || arena.status == GameState.restarting) return
+        val arena = BedWars.getAPI().getArenaUtil().getArenaByPlayer(player) ?: return
+        if (arena.getStatus() == GameState.playing || arena.getStatus() == GameState.restarting) return
 
         if (!update) {
             val openEvent = TeamSelectorOpenEvent(player)
@@ -68,7 +68,7 @@ object TeamSelectorGUI {
         Config.playSound(player, Config.GUI_OPEN_SOUND)
         openGUIs.add(player.uniqueId)
 
-        val layout = layoutFor(arena.teams.size)
+        val layout = layoutFor(arena.getTeams()!!.size)
         val inventory = if (update) {
             BedWars.nms.getTopInventory(player)
         } else {
@@ -76,7 +76,7 @@ object TeamSelectorGUI {
         } ?: return
 
         val usedSlots = HashSet<Int>()
-        for ((index, team) in arena.teams.withIndex()) {
+        for ((index, team) in arena.getTeams()!!.withIndex()) {
             if (index >= layout.teamSlots.size) break
             val teamItem = createTeamItem(player, arena, team) ?: continue
             inventory.setItem(layout.teamSlots[index], teamItem)
@@ -91,14 +91,14 @@ object TeamSelectorGUI {
      * The item representing a team, showing how many players picked it and who.
      */
     private fun createTeamItem(player: Player, arena: IArena, team: ITeam): ItemStack? {
-        val teamColor = team.color.chat().toString()
+        val teamColor = team.getColor().chat().toString()
         val selectedCount = TeamManager.getPlayersCount(team, arena).toString()
-        val maxInTeam = arena.maxInTeam.toString()
+        val maxInTeam = arena.getMaxInTeam().toString()
         val teamName = team.getDisplayName(Language.getPlayerLanguage(player))
 
         var item = ItemStack(Material.valueOf(Config.config.getString(Config.SELECTOR_ITEM_STACK_MATERIAL)))
-        item = BedWars.nms.colourItem(item, team)
-        item = BedWars.nms.addCustomData(item, TEAM_JOIN_IDENTIFIER + team.name)
+        item = BedWars.nms.colourItem(item, team)!!
+        item = BedWars.nms.addCustomData(item, TEAM_JOIN_IDENTIFIER + team.getName())
 
         val itemMeta = item.itemMeta ?: return null
         itemMeta.setDisplayName(
@@ -148,12 +148,12 @@ object TeamSelectorGUI {
      */
     @JvmStatic
     fun joinTeam(player: Player, teamName: String): Boolean {
-        val arena = BedWars.getAPI().arenaUtil.getArenaByPlayer(player) ?: return false
-        if (arena.status == GameState.playing || arena.status == GameState.restarting) return false
+        val arena = BedWars.getAPI().getArenaUtil().getArenaByPlayer(player) ?: return false
+        if (arena.getStatus() == GameState.playing || arena.getStatus() == GameState.restarting) return false
 
         // the countdown task only exists while starting, and it may be gone for a moment while the state changes
-        val countdownTask = arena.startingTask
-        if (arena.status == GameState.starting && countdownTask != null && countdownTask.countdown < 2) return false
+        val countdownTask = arena.getStartingTask()
+        if (arena.getStatus() == GameState.starting && countdownTask != null && countdownTask.getCountdown() < 2) return false
 
         val team = arena.getTeam(teamName) ?: return false
         val currentChoice = TeamManager.getPlayerTeam(player, arena)
@@ -169,10 +169,10 @@ object TeamSelectorGUI {
         }
 
         val teamDisplayName = team.getDisplayName(Language.getPlayerLanguage(player))
-        val teamColor = team.color.chat().toString()
+        val teamColor = team.getColor().chat().toString()
         val playersInTeam = TeamManager.getPlayersCount(team, arena)
 
-        if (playersInTeam >= arena.maxInTeam) {
+        if (playersInTeam >= arena.getMaxInTeam()) {
             player.sendMessage(
                 Language.getMsg(player, Messages.TEAM_FULL).replace("{color}", teamColor).replace("{team}", teamDisplayName)
             )
@@ -181,7 +181,7 @@ object TeamSelectorGUI {
 
         // do not allow a team to get ahead of another one
         if (Config.config.getBoolean(Config.BALANCE_TEAMS)) {
-            val anotherTeamHasLess = arena.teams.any { other ->
+            val anotherTeamHasLess = arena.getTeams()!!.any { other ->
                 other != team && playersInTeam > TeamManager.getPlayersCount(other, arena)
             }
             if (anotherTeamHasLess) {
@@ -206,7 +206,7 @@ object TeamSelectorGUI {
             Language.getMsg(player, Messages.TEAM_JOIN)
                 .replace("{color}", teamColor).replace("{team}", teamDisplayName)
                 .replace("{selected}", TeamManager.getMembers(team, arena).toString())
-                .replace("{total}", arena.maxInTeam.toString())
+                .replace("{total}", arena.getMaxInTeam().toString())
         )
         return true
     }
@@ -239,7 +239,7 @@ object TeamSelectorGUI {
         }
 
         if (team != null && Config.config.getBoolean(Config.GIVE_SELECTOR_SELECTED_TEAM_COLOR)) {
-            item = BedWars.nms.colourItem(item, team)
+            item = BedWars.nms.colourItem(item, team)!!
         }
 
         val itemMeta = item.itemMeta ?: return

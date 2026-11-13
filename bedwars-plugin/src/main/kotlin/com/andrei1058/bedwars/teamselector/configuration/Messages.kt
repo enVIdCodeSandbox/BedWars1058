@@ -78,7 +78,7 @@ object Messages {
 
     private fun addDefault(language: Language, path: String, english: Any, romanian: Any) {
         if (!language.exists(path)) {
-            language.set(path, if (language.iso == "ro") romanian else english)
+            language.set(path, if (language.getIso() == "ro") romanian else english)
         }
     }
 }

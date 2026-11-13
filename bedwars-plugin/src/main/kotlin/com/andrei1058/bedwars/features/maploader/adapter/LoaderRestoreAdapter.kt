@@ -102,15 +102,15 @@ class LoaderRestoreAdapter(
                         bw.arenaUtil.setGamesBeforeRestart(bw.arenaUtil.getGamesBeforeRestart() - 1)
                     }
                     runtime.unloadAndDelete(worldName.unchecked())
-                    if (bw.arenaUtil.canAutoScale(arenaName)) {
-                        bw.syncLater(80L) { reenter(arenaName) }
+                    if (bw.arenaUtil.canAutoScale(arenaName!!)) {
+                        bw.syncLater(80L) { reenter(arenaName!!) }
                     }
                 }
             } else {
                 runtime.unloadAndDelete(worldName.unchecked())
                 // with several instances per arena another game may already be waiting for players
-                if (bw.arenaUtil.canAutoScale(arenaName)) {
-                    bw.syncLater(80L) { reenter(arenaName) }
+                if (bw.arenaUtil.canAutoScale(arenaName!!)) {
+                    bw.syncLater(80L) { reenter(arenaName!!) }
                 }
             }
         }

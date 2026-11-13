@@ -55,7 +55,7 @@ open class BwSidebar(private val player: Player) : ISidebar {
     override fun setContent(titleArray: MutableList<String>, lineArray: MutableList<String>, arena: IArena?) {
         this.arena = arena
         // dropped before the lines are parsed with it.
-        val statisticsFromAnotherArena: Boolean = null != topStatistics && topStatistics.getArena() !== arena
+        val statisticsFromAnotherArena: Boolean = null != topStatistics && topStatistics!!.getArena() !== arena
         if (null == arena || statisticsFromAnotherArena) {
             setTopStatistics(null)
         }
@@ -364,21 +364,21 @@ open class BwSidebar(private val player: Player) : ISidebar {
         if (null == arena) {
             return ""
         }
-        val map = "&a" + arena.getDisplayName()
+        val map = "&a" + arena!!.getDisplayName()
         var out: String
-        if (arena.isSpectator(player)) {
+        if (arena!!.isSpectator(player)) {
             out = "&7Spectating &8| " + map
         } else {
-            when (arena.getStatus()) {
+            when (arena!!.getStatus()) {
                 GameState.waiting -> {
-                    out = "&fWaiting for players &8| &a" + arena.getPlayers().size() + "&7/&a" + arena.getMaxPlayers()
+                    out = "&fWaiting for players &8| &a" + arena!!.getPlayers()!!.size + "&7/&a" + arena!!.getMaxPlayers()
                 }
                 GameState.starting -> {
-                    val left: String = if (arena.getStartingTask() == null) "" else (arena.getStartingTask().getCountdown() + 1).toString()
-                    out = "&fStarting in &a" + left + "s &8| &a" + arena.getPlayers().size() + "&7/&a" + arena.getMaxPlayers()
+                    val left: String = if (arena!!.getStartingTask() == null) "" else (arena!!.getStartingTask()!!.getCountdown() + 1).toString()
+                    out = "&fStarting in &a" + left + "s &8| &a" + arena!!.getPlayers()!!.size + "&7/&a" + arena!!.getMaxPlayers()
                 }
                 GameState.playing -> {
-                    val team: ITeam? = arena.getTeam(player)
+                    val team: ITeam? = arena!!.getTeam(player)
                     val teamPart: String = if (null == team) "" else " &8| " + team.getColor().chat() + team.getDisplayName(getPlayerLanguage(player)) + " Team"
                     out = map + teamPart + " &8| &f" + getNextEventName() + " &a" + getNextEventTime()
                 }
@@ -403,7 +403,7 @@ open class BwSidebar(private val player: Player) : ISidebar {
         }
         val out: MutableList<String> = ArrayList(lines)
         var at: Int = 0
-        for (i in 0 until out.size()) {
+        for (i in 0 until out.size) {
             if (out.get(i).contains("{date}")) {
                 at = i + 1
                 break
@@ -575,7 +575,7 @@ open class BwSidebar(private val player: Player) : ISidebar {
 
         @JvmStatic
         private fun translateColors(lines: MutableList<String>): MutableList<String> {
-            val out: MutableList<String> = ArrayList(lines.size())
+            val out: MutableList<String> = ArrayList(lines.size)
             for (l in lines) {
                 // tab header/footer lines are never animations: keep their commas
                 out.add(org.bukkit.ChatColor.translateAlternateColorCodes('&', l).replace(",", "{comma}"))

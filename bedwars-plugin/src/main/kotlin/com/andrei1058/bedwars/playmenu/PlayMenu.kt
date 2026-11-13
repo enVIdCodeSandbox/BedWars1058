@@ -146,7 +146,7 @@ object PlayMenu {
             Language.getList(player, PlayMenuMessages.RECONNECT_LORE_UNAVAILABLE)
         } else {
             Language.getList(player, PlayMenuMessages.RECONNECT_LORE_AVAILABLE)
-                .map { it.replace("{arena}", reJoin.arena.displayName) }
+                .map { it.replace("{arena}", reJoin.getArena()!!.getDisplayName()) }
         }
 
         return createButton(

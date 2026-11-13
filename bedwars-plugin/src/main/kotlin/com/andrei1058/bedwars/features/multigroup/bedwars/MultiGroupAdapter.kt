@@ -58,14 +58,14 @@ class MultiGroupAdapter(
 
     override fun onRestart(a: IArena) {
         val name = a.getArenaName()
-        if (registry.isRetired(name) && !registry.isVariant(name)) {
+        if (registry.isRetired(name!!) && !registry.isVariant(name!!)) {
             // removed from its map file by /bwmg reload: wind it down instead of creating it again
             log.info("Variant arena '$name' was removed from its map; it is not restarted.")
-            registry.forgetRetired(name)
+            registry.forgetRetired(name!!)
             if (delegateVariants()) delegate.onDisable(a) else sync { worlds.unloadAndDelete(a.getWorldName().unchecked()) }
             return
         }
-        if (!handledHere(name)) {
+        if (!handledHere(name!!)) {
             delegate.onRestart(a)
             return
         }
@@ -82,12 +82,12 @@ class MultiGroupAdapter(
                 } else {
                     if (util.getGamesBeforeRestart() != -1) util.setGamesBeforeRestart(util.getGamesBeforeRestart() - 1)
                     worlds.unloadAndDelete(worldName.unchecked())
-                    if (util.canAutoScale(name)) later(80L) { reenter(name) }
+                    if (util.canAutoScale(name!!)) later(80L) { reenter(name!!) }
                 }
             } else {
                 worlds.unloadAndDelete(worldName.unchecked())
                 // with several instances per arena another game may already be waiting for players
-                if (api.getArenaUtil().canAutoScale(name)) later(80L) { reenter(name) }
+                if (api.getArenaUtil().canAutoScale(name!!)) later(80L) { reenter(name!!) }
             }
         }
     }

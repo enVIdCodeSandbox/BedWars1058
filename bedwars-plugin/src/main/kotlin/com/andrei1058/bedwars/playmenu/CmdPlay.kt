@@ -23,8 +23,8 @@ class CmdPlay(parent: ParentCommand, name: String) : SubCommand(parent, name) {
         showInList(false)
         setDisplayInfo(
             MainCommand.createTC(
-                "§6 ▪ §7/${MainCommand.getInstance().name} $subCommandName §e[arenaGroup]",
-                "/${parent.name} $subCommandName",
+                "§6 ▪ §7/${MainCommand.getInstance().name} ${getSubCommandName()} §e[arenaGroup]",
+                "/${parent.getName()} ${getSubCommandName()}",
                 "§fOpens the play menu: join a random arena, pick an arena or reconnect."
             )
         )
@@ -51,8 +51,8 @@ class CmdPlay(parent: ParentCommand, name: String) : SubCommand(parent, name) {
     private fun isKnownGroup(group: String): Boolean =
         group.split("+").all { it.equals(PlayMenu.DEFAULT_GROUP, ignoreCase = true) || MainCommand.isArenaGroup(it) }
 
-    override fun getTabComplete(): List<String> =
-        BedWars.config.yml.getStringList(ConfigPath.GENERAL_CONFIGURATION_ARENA_GROUPS)
+    override fun getTabComplete(): MutableList<String>? =
+        BedWars.config.getYml().getStringList(ConfigPath.GENERAL_CONFIGURATION_ARENA_GROUPS)
 
     override fun canSee(s: CommandSender, api: com.andrei1058.bedwars.api.BedWars): Boolean {
         if (s is ConsoleCommandSender) return false

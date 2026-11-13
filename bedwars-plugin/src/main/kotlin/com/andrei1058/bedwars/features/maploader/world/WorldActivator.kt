@@ -73,7 +73,7 @@ class WorldActivator(
         val protectedNames = runtime.protectedNames()
         val deleteLevelDat = settings().world.deleteLevelDat
         io.submit {
-            val result = store.materialize(arenaName, worldName.unchecked(), protectedNames, deleteLevelDat)
+            val result = store.materialize(arenaName!!, worldName.unchecked(), protectedNames, deleteLevelDat)
             bw.sync { afterMaterialize(a, result) }
         }
     }

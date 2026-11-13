@@ -1232,7 +1232,7 @@ open class Arena : IArena {
         return group
     }
 
-    override fun getArenaName(): String? {
+    override fun getArenaName(): String {
         return arenaName
     }
 

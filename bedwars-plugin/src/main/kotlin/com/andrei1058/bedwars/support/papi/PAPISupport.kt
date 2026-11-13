@@ -74,7 +74,7 @@ open class PAPISupport : PlaceholderExpansion() {
             return players.toString()
         }
         if (s.startsWith("arena_instances_")) {
-            return Arena.getArenasByName(s.replace("arena_instances_", "")).size().toString()
+            return Arena.getArenasByName(s.replace("arena_instances_", "")).size.toString()
         }
         if (s.startsWith("group_count_")) {
             return Arena.getPlayers(s.replace("group_count_", "")).toString()

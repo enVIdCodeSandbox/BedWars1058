@@ -15,7 +15,7 @@ class PlayerGroup(private val arena: IArena, val preference: ITeam?) : Comparabl
      * Add a player to this group if the team size limit was not reached.
      */
     fun addPlayer(player: Player) {
-        if (members.size == arena.maxInTeam) return
+        if (members.size == arena.getMaxInTeam()) return
         members.add(player)
     }
 
@@ -27,7 +27,7 @@ class PlayerGroup(private val arena: IArena, val preference: ITeam?) : Comparabl
         return if (members.size > 1) members else emptySet()
     }
 
-    private fun canFillATeam(): Boolean = getMembers().size == arena.maxInTeam
+    private fun canFillATeam(): Boolean = getMembers().size == arena.getMaxInTeam()
 
     /**
      * Sort order used by the assigner: groups that come later in the order are placed first.
@@ -39,7 +39,7 @@ class PlayerGroup(private val arena: IArena, val preference: ITeam?) : Comparabl
                 return getMembers().size.compareTo(other.getMembers().size)
             }
             // a party versus a preference group: the preference group goes first only if it can fill a whole team
-            return if (other.getMembers().size == arena.maxInTeam) -1 else 1
+            return if (other.getMembers().size == arena.getMaxInTeam()) -1 else 1
         }
 
         // a preference group that can fill a whole team always goes first

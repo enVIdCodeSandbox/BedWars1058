@@ -77,6 +77,6 @@ open class DispatchCommand(private val commandType: CommandType, private val com
         val arenaWorld = team.getArena()!!.getWorldName()
         val arenaDisplay = team.getArena()!!.getDisplayName()
         val arenaGroup = team.getArena()!!.getGroup()
-        commandType.dispatch(team, command.replace("{buyer}", buyerName).replace("{buyer_uuid}", buyerUUID).replace("{team}", teamName.unchecked()).replace("{team_display}", teamDisplay).replace("{team_color}", teamColor).replace("{arena}", arenaIdentifier).replace("{arena_world}", arenaWorld.unchecked()).replace("{arena_display}", arenaDisplay).replace("{arena_group}", arenaGroup))
+        commandType.dispatch(team, command.replace("{buyer}", buyerName).replace("{buyer_uuid}", buyerUUID).replace("{team}", teamName.unchecked()).replace("{team_display}", teamDisplay).replace("{team_color}", teamColor).replace("{arena}", arenaIdentifier!!).replace("{arena_world}", arenaWorld.unchecked()).replace("{arena_display}", arenaDisplay).replace("{arena_group}", arenaGroup))
     }
 }

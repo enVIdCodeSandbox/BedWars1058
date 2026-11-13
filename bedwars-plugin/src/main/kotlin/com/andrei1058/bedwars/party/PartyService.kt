@@ -309,7 +309,7 @@ object PartyService {
             if (member === by) continue
             val current = Arena.getArenaByPlayer(member)
             if (current != null && current === arena) continue
-            if (current != null && !current.isSpectator(member) && current.status == GameState.playing) {
+            if (current != null && !current.isSpectator(member) && current.getStatus() == GameState.playing) {
                 PartyMessages.send(by, "warp-busy", "player" to member.name)
                 continue
             }

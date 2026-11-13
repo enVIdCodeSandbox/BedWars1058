@@ -55,10 +55,10 @@ open class BuyCommand(path: String, yml: YamlConfiguration, upgradeIdentifier: S
         val arenaDisplay = arena.getDisplayName()
         val arenaGroup = arena.getGroup()
         for (playerCmd in asPlayer) {
-            player.chat(playerCmd.replace("{player}", playerName).replace("{player_uuid}", playerUUID).replace("{team}", teamName).replace("{team_display}", teamDisplay).replace("{team_color}", teamColor).replace("{arena}", arenaIdentifier).replace("{arena_world}", arenaWorld.unchecked()).replace("{arena_display}", arenaDisplay).replace("{arena_group}", arenaGroup))
+            player.chat(playerCmd.replace("{player}", playerName).replace("{player_uuid}", playerUUID).replace("{team}", teamName).replace("{team_display}", teamDisplay).replace("{team_color}", teamColor).replace("{arena}", arenaIdentifier!!).replace("{arena_world}", arenaWorld.unchecked()).replace("{arena_display}", arenaDisplay).replace("{arena_group}", arenaGroup))
         }
         for (consoleCmd in asConsole) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), consoleCmd.replace("{player}", playerName).replace("{player_uuid}", playerUUID).replace("{team}", teamName).replace("{team_display}", teamDisplay).replace("{team_color}", teamColor).replace("{arena}", arenaIdentifier).replace("{arena_world}", arenaWorld.unchecked()).replace("{arena_display}", arenaDisplay).replace("{arena_group}", arenaGroup))
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), consoleCmd.replace("{player}", playerName).replace("{player_uuid}", playerUUID).replace("{team}", teamName).replace("{team_display}", teamDisplay).replace("{team_color}", teamColor).replace("{arena}", arenaIdentifier!!).replace("{arena_world}", arenaWorld.unchecked()).replace("{arena_display}", arenaDisplay).replace("{arena_group}", arenaGroup))
         }
     }
 

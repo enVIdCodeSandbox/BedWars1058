@@ -140,12 +140,12 @@ open class SidebarService private constructor() : ISidebarService {
     private fun withGameMode(lines: MutableList<String>): MutableList<String> {
         val yml = BedWars.config.getYml()
         val format: String? = yml.getString("scoreboard-settings.game-mode.format", "&fMode: &a{group}")
-        if (!yml.getBoolean("scoreboard-settings.game-mode.enable", true) || format == null || format.isEmpty() || lines.stream().anyMatch({ l -> l.contains("{group}") }) || lines.size() >= 15) {
+        if (!yml.getBoolean("scoreboard-settings.game-mode.enable", true) || format == null || format.isEmpty() || lines.stream().anyMatch({ l -> l.contains("{group}") }) || lines.size >= 15) {
             return lines
         }
         val out: MutableList<String> = ArrayList(lines)
         var at: Int = 0
-        for (i in 0 until out.size()) {
+        for (i in 0 until out.size) {
             if (out.get(i).contains("{date}")) {
                 at = i + 1
                 break

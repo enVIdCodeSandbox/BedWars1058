@@ -40,7 +40,7 @@ object Config {
         File(CONFIG_DIRECTORY).mkdirs()
 
         config = ConfigManager(BedWars.plugin, "config", CONFIG_DIRECTORY)
-        val yml = config.yml
+        val yml = config.getYml()
         yml.options().header(
             "Team Selector for BedWars1058 (built into the plugin).\n\nDocumentation:\n" +
                     "$SELECTOR_ITEM_STACK_MATERIAL: WOOL - The material you want the team-selector item be.\n" +

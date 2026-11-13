@@ -166,7 +166,7 @@ object ArenaGUI {
         p.openInventory(inv)
         Sounds.playSound("arena-selector-open", p)
         Bukkit.getScheduler().runTask(BedWars.plugin, Runnable lambda7@{
-            if (!p.isOnline() || !(BedWars.nms.getTopInventory(p).getHolder() === ash)) {
+            if (!p.isOnline() || !(BedWars.nms.getTopInventory(p)!!.getHolder() === ash)) {
                 return@lambda7
             }
             ash.setReady()

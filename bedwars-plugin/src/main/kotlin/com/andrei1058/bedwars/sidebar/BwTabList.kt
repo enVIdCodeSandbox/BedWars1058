@@ -304,7 +304,7 @@ open class BwTabList(private val sidebar: BwSidebar) {
         var tag: String? = BedWars.config.getYml().getString("scoreboard-settings.tab-list.team-tag", "{teamLetter} ")
         if (tag != null && !tag.isEmpty()) {
             for (entry in replacements.entries) {
-                tag = tag.replace(entry.key, entry.value)
+                tag = tag!!.replace(entry.key, entry.value)
             }
             val resolved = org.bukkit.ChatColor.translateAlternateColorCodes('&', tag)
             while (!resolved.isEmpty() && rank.contains(resolved)) {

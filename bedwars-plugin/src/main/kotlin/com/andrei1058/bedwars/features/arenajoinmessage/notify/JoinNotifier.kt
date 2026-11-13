@@ -210,6 +210,6 @@ class JoinNotifier(private val plugin: ArenaJoinMessagePlugin) {
          * Unique id of an arena INSTANCE. With auto-scale every clone shares the template's arena name
          * but has its own world name, so the world name is what tells two games apart.
          */
-        fun arenaKey(arena: IArena): String = arena.getWorldName()?.takeIf { it.isNotBlank() } ?: arena.getArenaName()
+        fun arenaKey(arena: IArena): String = (arena.getWorldName()?.takeIf { it.isNotBlank() } ?: arena.getArenaName())!!
     }
 }

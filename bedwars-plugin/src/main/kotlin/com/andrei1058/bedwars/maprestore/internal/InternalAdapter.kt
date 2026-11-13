@@ -57,7 +57,7 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                 val af = File(Bukkit.getWorldContainer(), a.getArenaName())
                 // (on 26.1+ every game is: Paper only reads worlds from the main level folder, see WorldLayout)
                 val instance: Boolean = WorldLayout.isModernServer() || a.getWorldName() != a.getArenaName()
-                val runtimeDir = WorldLayout.worldDir(a.getWorldName())
+                val runtimeDir = WorldLayout.worldDir(a.getWorldName()!!)
                 var hadBackup: Boolean
                 synchronized(ZIP_LOCK) {
                     hadBackup = bf.exists()
@@ -130,7 +130,7 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
             Bukkit.unloadWorld(a.getWorldName(), false)
             if (WorldLayout.isModernServer() || a.getWorldName() != a.getArenaName()) {
                 try {
-                    FileUtils.deleteDirectory(WorldLayout.worldDir(a.getWorldName()))
+                    FileUtils.deleteDirectory(WorldLayout.worldDir(a.getWorldName()!!))
                 } catch (ignored: IOException) {
                 }
             }
@@ -139,7 +139,7 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
         Bukkit.getScheduler().runTask(getOwner(), Runnable {
             Bukkit.unloadWorld(a.getWorldName(), false)
             if (WorldLayout.isModernServer() || a.getWorldName() != a.getArenaName()) {
-                deleteRuntime(a.getWorldName())
+                deleteRuntime(a.getWorldName()!!)
             }
         })
     }

@@ -358,7 +358,7 @@ open class BedWars : JavaPlugin() {
         /* Play menu (/bw play) */
         PlayMenuModule.enable()
         /* Parties and Play Again */
-        com.andrei1058.bedwars.party.PartyModule.INSTANCE.enable(this)
+        com.andrei1058.bedwars.party.PartyModule.enable(this)
         try {
             com.andrei1058.bedwars.management.Management.start(this)
         } catch (t: Throwable) {
@@ -519,7 +519,7 @@ open class BedWars : JavaPlugin() {
     override fun onDisable() {
         shuttingDown = true
         com.andrei1058.bedwars.management.Management.stop()
-        com.andrei1058.bedwars.party.PartyModule.INSTANCE.disable()
+        com.andrei1058.bedwars.party.PartyModule.disable()
         if (!serverSoftwareSupport) {
             return
         }

@@ -70,8 +70,8 @@ object PlayAgain : Listener {
 
     @EventHandler
     fun onState(e: GameStateChangeEvent) {
-        val arena = e.arena
-        when (e.newState) {
+        val arena = e.getArena()
+        when (e.getNewState()) {
             GameState.waiting -> participants.remove(arena)
             GameState.restarting -> {
                 if (!enabled()) return
@@ -82,8 +82,8 @@ object PlayAgain : Listener {
     }
 
     private fun offer(arena: IArena) {
-        if (arena.status != GameState.restarting) return
-        val everyone = (arena.players + arena.spectators).filter { it.isOnline }
+        if (arena.getStatus() != GameState.restarting) return
+        val everyone = (arena.getPlayers()!! + arena.getSpectators()!!).filter { it.isOnline }
         participants[arena] = everyone.map { it.uniqueId }.toSet()
         val slot = PartyMessages.int("play-again.slot").coerceIn(0, 8)
         for (player in everyone) player.inventory.setItem(slot, createItem())
@@ -120,7 +120,7 @@ object PlayAgain : Listener {
 
     private fun click(player: Player) {
         val arena = Arena.getArenaByPlayer(player)
-        if (arena == null || arena.status != GameState.restarting || !enabled()) {
+        if (arena == null || arena.getStatus() != GameState.restarting || !enabled()) {
             return PartyMessages.send(player, "play-again-unavailable")
         }
         val party = BedWars.getParty()
@@ -128,7 +128,7 @@ object PlayAgain : Listener {
         var group = listOf(player)
         if (inParty) {
             if (party.isOwner(player)) {
-                group = party.getMembers(player).filter { Arena.getArenaByPlayer(it) === arena }.ifEmpty { listOf(player) }
+                group = party.getMembers(player)!!.filter { Arena.getArenaByPlayer(it) === arena }.ifEmpty { listOf(player) }
             } else {
                 val leader = party.getOwner(player)
                 // the leader already left this game: let the member requeue on their own
@@ -142,8 +142,8 @@ object PlayAgain : Listener {
         val request = Pending(
             leader.uniqueId,
             group.map { it.uniqueId },
-            participants[arena] ?: (arena.players + arena.spectators).map { it.uniqueId }.toSet(),
-            arena.group,
+            participants[arena] ?: (arena.getPlayers()!! + arena.getSpectators()!!).map { it.uniqueId }.toSet(),
+            arena.getGroup(),
             PartyMessages.int("play-again.search-seconds").coerceAtLeast(5)
         )
         group.forEach { PartyMessages.send(it, "play-again-searching") }
@@ -159,23 +159,23 @@ object PlayAgain : Listener {
      */
     private fun pick(request: Pending, size: Int): IArena? {
         val open = Arena.getArenas().filter { arena ->
-            arena.group.equals(request.group, ignoreCase = true) && joinable(arena) && arena.maxPlayers - arena.players.size >= size
+            arena.getGroup().equals(request.group, ignoreCase = true) && joinable(arena) && arena.getMaxPlayers() - arena.getPlayers()!!.size >= size
         }
         if (open.isEmpty()) return null
-        fun overlap(a: IArena) = a.players.count { it.uniqueId in request.avoid }
+        fun overlap(a: IArena) = a.getPlayers()!!.count { it.uniqueId in request.avoid }
         val fresh = open.filter { overlap(it) == 0 }
         if (fresh.isNotEmpty()) {
-            val busiest = fresh.maxOf { it.players.size }
-            return fresh.filter { it.players.size == busiest }.random(Random)
+            val busiest = fresh.maxOf { it.getPlayers()!!.size }
+            return fresh.filter { it.getPlayers()!!.size == busiest }.random(Random)
         }
         // every open lobby has someone from the last game: take the one with the fewest, then any of those
         val least = open.minOf { overlap(it) }
         return open.filter { overlap(it) == least }.random(Random)
     }
 
-    private fun joinable(arena: IArena): Boolean = when (arena.status) {
+    private fun joinable(arena: IArena): Boolean = when (arena.getStatus()) {
         GameState.waiting -> true
-        GameState.starting -> (arena.startingTask?.countdown ?: 0) > 1
+        GameState.starting -> (arena.getStartingTask()?.getCountdown() ?: 0) > 1
         else -> false
     }
 
@@ -187,7 +187,7 @@ object PlayAgain : Listener {
         val leader = Bukkit.getPlayer(request.leader)?.takeIf { it.isOnline } ?: online.first()
         // a party leader brings the whole party, so count everyone who would follow
         val size = if (party.hasParty(leader) && party.isOwner(leader)) {
-            party.getMembers(leader).count { member ->
+            party.getMembers(leader)!!.count { member ->
                 val current = Arena.getArenaByPlayer(member)
                 current == null || current.isSpectator(member) || online.contains(member)
             }.coerceAtLeast(online.size)
@@ -201,7 +201,7 @@ object PlayAgain : Listener {
             online.map { target.addPlayer(it, true) }.any { it }
         }
         if (!ok) return false
-        online.forEach { PartyMessages.send(it, "play-again-found", "arena" to (target.displayName ?: target.arenaName)) }
+        online.forEach { PartyMessages.send(it, "play-again-found", "arena" to (target.getDisplayName() ?: target.getArenaName()).toString()) }
         return true
     }
 

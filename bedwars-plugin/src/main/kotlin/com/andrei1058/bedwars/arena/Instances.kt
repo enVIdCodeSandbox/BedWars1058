@@ -65,7 +65,7 @@ object Instances {
     @JvmStatic
     fun isJoinable(a: IArena): Boolean {
         val s = a.getStatus()
-        return (s == GameState.waiting || s == GameState.starting) && a.getPlayers().size() < a.getMaxPlayers()
+        return (s == GameState.waiting || s == GameState.starting) && a.getPlayers()!!.size < a.getMaxPlayers()
     }
 
     /**
@@ -79,7 +79,7 @@ object Instances {
             if (!isJoinable(a)) {
                 continue
             }
-            if (best == null || a.getPlayers().size() > best.getPlayers().size()) {
+            if (best == null || a.getPlayers()!!.size > best.getPlayers()!!.size) {
                 best = a
             }
         }

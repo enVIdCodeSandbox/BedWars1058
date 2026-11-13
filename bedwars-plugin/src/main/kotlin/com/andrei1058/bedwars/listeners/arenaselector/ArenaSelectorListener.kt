@@ -45,7 +45,7 @@ open class ArenaSelectorListener : Listener {
             return
         }
         event.setCancelled(true)
-        val holder = BedWars.nms.getTopInventory(player).getHolder() as ArenaGUI.ArenaSelectorHolder
+        val holder = BedWars.nms.getTopInventory(player)!!.getHolder() as ArenaGUI.ArenaSelectorHolder
         // still being filled: nothing can be clicked yet
         if (!holder.isReady()) {
             return

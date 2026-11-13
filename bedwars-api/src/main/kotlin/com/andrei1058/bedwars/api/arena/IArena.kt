@@ -58,7 +58,7 @@ interface IArena {
     /**
      * Get used world name.
      */
-    fun getArenaName(): String?
+    fun getArenaName(): String
 
     /**
      * Initialize the arena after loading the world.

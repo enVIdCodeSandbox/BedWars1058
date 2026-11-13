@@ -21,7 +21,7 @@ class PlayMenuListener : Listener {
         event.isCancelled = true
 
         // only clicks on the menu itself are buttons, not on the player's own inventory below it
-        val clickedMenu = event.rawSlot in 0 until BedWars.nms.getTopInventory(player).size
+        val clickedMenu = event.rawSlot in 0 until BedWars.nms.getTopInventory(player)!!.size
         if (!clickedMenu) return
 
         PlayMenu.onButtonClick(player, holder.group, event.rawSlot)

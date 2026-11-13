@@ -17,7 +17,7 @@ open class SpectateMenuListener : Listener {
     @EventHandler
     open fun onClick(event: InventoryClickEvent) {
         val player = event.getWhoClicked() as Player
-        if (BedWars.nms.getTopInventory(player).getHolder() !is SpectateMenu.Holder) {
+        if (BedWars.nms.getTopInventory(player)!!.getHolder() !is SpectateMenu.Holder) {
             return
         }
         event.setCancelled(true)
@@ -32,7 +32,7 @@ open class SpectateMenuListener : Listener {
         if (!data.startsWith(SpectateMenu.DATA_PREFIX)) {
             return
         }
-        val game = Arena.getArenaByIdentifier(data.substring(SpectateMenu.DATA_PREFIX.length()))
+        val game = Arena.getArenaByIdentifier(data.substring(SpectateMenu.DATA_PREFIX.length))
         player.closeInventory()
         if (SpectateMenu.spectate(player, game)) {
             Sounds.playSound("spectate-allowed", player)

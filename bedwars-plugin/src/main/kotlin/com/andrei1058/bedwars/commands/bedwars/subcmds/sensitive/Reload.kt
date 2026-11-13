@@ -54,10 +54,10 @@ open class Reload(parent: ParentCommand, name: String) : SubCommand(parent, name
             run(s, "sidebar and tab list", {
                 // header/footer, tab formats and sidebar lines read the config and language files live
                 val svc = com.andrei1058.bedwars.sidebar.SidebarService.getInstance()
-                svc.refreshTitles()
-                svc.refreshPlaceholders()
-                svc.refreshTabList()
-                svc.refreshTabHeaderFooter()
+                svc!!.refreshTitles()
+                svc!!.refreshPlaceholders()
+                svc!!.refreshTabList()
+                svc!!.refreshTabHeaderFooter()
             })
         }
         if (all || scope == "lang" || scope == "messages") {
@@ -113,7 +113,7 @@ open class Reload(parent: ParentCommand, name: String) : SubCommand(parent, name
                 action.run()
                 s.sendMessage("§6 ▪ §a" + what + " reloaded!")
             } catch (t: Throwable) {
-                s.sendMessage("§6 ▪ §c" + what + " failed: " + t.getMessage() + " (see console)")
+                s.sendMessage("§6 ▪ §c" + what + " failed: " + t.message + " (see console)")
                 t.printStackTrace()
             }
         }

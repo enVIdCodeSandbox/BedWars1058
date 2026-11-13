@@ -38,7 +38,7 @@ open class CmdSpectate(parent: ParentCommand, name: String) : SubCommand(parent,
                 return true
             }
         }
-        SpectateMenu.open(p, arena)
+        SpectateMenu.open(p, arena!!)
         return true
     }
 

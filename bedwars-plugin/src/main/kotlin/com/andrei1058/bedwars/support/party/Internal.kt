@@ -73,7 +73,7 @@ open class Internal : Party {
 
     override fun isMember(owner: Player, check: Player): Boolean {
         val party: PartyService.Party? = PartyService.partyOf(owner)
-        return party != null && party.getMembers().contains(check.getUniqueId())
+        return party != null && party.members.contains(check.getUniqueId())
     }
 
     override fun removePlayer(owner: Player, target: Player) {
@@ -85,7 +85,7 @@ open class Internal : Party {
         if (party == null) {
             return null
         }
-        val leader = party.getLeader()
+        val leader = party.leader
         return org.bukkit.Bukkit.getPlayer(leader)
     }
 

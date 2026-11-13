@@ -18,7 +18,7 @@ class TeamSelectorAssigner : ITeamAssigner {
         // these are rebuilt for every game
         val playerGroups = ArrayList<PlayerGroup>()
         val playersAddedToATeam = HashSet<UUID>()
-        val teamsWithSpace = ArrayList(arena.teams)
+        val teamsWithSpace = ArrayList(arena.getTeams())
 
         playerGroups.addAll(createPartyGroups(arena))
 
@@ -58,11 +58,11 @@ class TeamSelectorAssigner : ITeamAssigner {
         // all the members of a handled party are skipped, since several members may be recognized as owner
         val alreadyHandled = HashSet<UUID>()
 
-        for (player in arena.players) {
+        for (player in arena.getPlayers()!!) {
             if (player.uniqueId in alreadyHandled || !BedWars.getParty().isOwner(player)) continue
 
             val partyMembers = ArrayDeque<Player>()
-            for (member in BedWars.getParty().getMembers(player)) {
+            for (member in BedWars.getParty().getMembers(player)!!) {
                 // only members that are in this very arena
                 if (arena.isPlayer(member)) {
                     partyMembers.add(member)
@@ -79,7 +79,7 @@ class TeamSelectorAssigner : ITeamAssigner {
 
             var group: PlayerGroup? = null
             while (partyMembers.isNotEmpty()) {
-                if (group == null || group.getMembers().size == arena.maxInTeam) {
+                if (group == null || group.getMembers().size == arena.getMaxInTeam()) {
                     group = PlayerGroup(arena, null)
                     groups.add(group)
                 }
@@ -96,14 +96,14 @@ class TeamSelectorAssigner : ITeamAssigner {
         arena: IArena, party: PlayerGroup, teamsWithSpace: MutableList<ITeam>, assigned: MutableSet<UUID>
     ) {
         val targetTeam = teamsWithSpace.firstOrNull {
-            arena.maxInTeam - it.members.size >= party.getMembers().size
+            arena.getMaxInTeam() - it.getMembers()!!.size >= party.getMembers().size
         } ?: return
 
         for (player in party.getMembers()) {
             addToTeam(arena, player, targetTeam)
             assigned.add(player.uniqueId)
         }
-        if (targetTeam.members.size == arena.maxInTeam) {
+        if (targetTeam.getMembers()!!.size == arena.getMaxInTeam()) {
             teamsWithSpace.remove(targetTeam)
         }
     }
@@ -116,12 +116,12 @@ class TeamSelectorAssigner : ITeamAssigner {
         arena: IArena, group: PlayerGroup, team: ITeam, teamsWithSpace: MutableList<ITeam>, assigned: MutableSet<UUID>
     ) {
         for (player in group.getMembers()) {
-            if (team.members.size < arena.maxInTeam) {
+            if (team.getMembers()!!.size < arena.getMaxInTeam()) {
                 addToTeam(arena, player, team)
                 assigned.add(player.uniqueId)
             }
         }
-        if (team.members.size == arena.maxInTeam) {
+        if (team.getMembers()!!.size == arena.getMaxInTeam()) {
             teamsWithSpace.remove(team)
         }
     }
@@ -130,10 +130,10 @@ class TeamSelectorAssigner : ITeamAssigner {
      * Players without a party or a choice, or whose choice could not be honoured, take any team with free space.
      */
     private fun assignRemainingPlayers(arena: IArena, teamsWithSpace: List<ITeam>, assigned: Set<UUID>) {
-        for (player in arena.players) {
+        for (player in arena.getPlayers()!!) {
             if (player.uniqueId in assigned) continue
 
-            val team = teamsWithSpace.firstOrNull { it.members.size < arena.maxInTeam }
+            val team = teamsWithSpace.firstOrNull { it.getMembers()!!.size < arena.getMaxInTeam() }
             if (team == null) {
                 player.kickPlayer("That was unexpected: you haven't been assigned to a team!")
             } else {

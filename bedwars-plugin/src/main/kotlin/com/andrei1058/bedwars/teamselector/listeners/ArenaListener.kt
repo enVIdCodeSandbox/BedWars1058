@@ -15,14 +15,14 @@ class ArenaListener : Listener {
 
     @EventHandler
     fun onArenaJoin(event: PlayerJoinArenaEvent) {
-        if (event.isCancelled || event.isSpectator) return
-        val arena = event.arena ?: return
-        if (arena.status != GameState.waiting && arena.status != GameState.starting) return
+        if (event.isCancelled() || event.isSpectator()) return
+        val arena = event.getArena() ?: return
+        if (arena.getStatus() != GameState.waiting && arena.getStatus() != GameState.starting) return
 
         // wait a moment, the player inventory is prepared after the join event
         Bukkit.getScheduler().runTaskLater(BedWars.plugin, Runnable {
-            if (arena.isPlayer(event.player) || arena.status != GameState.playing) {
-                TeamSelectorGUI.giveItem(event.player, null)
+            if (arena.isPlayer(event.getPlayer()) || arena.getStatus() != GameState.playing) {
+                TeamSelectorGUI.giveItem(event.getPlayer(), null)
             }
         }, 30L)
     }
@@ -32,24 +32,24 @@ class ArenaListener : Listener {
      */
     @EventHandler
     fun onArenaLeave(event: PlayerLeaveArenaEvent) {
-        val arena = event.arena
-        if (arena.status == GameState.waiting || arena.status == GameState.starting) {
-            TeamManager.onQuit(arena, event.player)
+        val arena = event.getArena()
+        if (arena.getStatus() == GameState.waiting || arena.getStatus() == GameState.starting) {
+            TeamManager.onQuit(arena, event.getPlayer())
         }
     }
 
     @EventHandler
     fun onStatusChange(event: GameStateChangeEvent) {
-        if (event.newState == GameState.starting) {
+        if (event.getNewState() == GameState.starting) {
             // do not start when everybody picked the same single team
-            val preferences = TeamManager.getArena(event.arena)
-            val playersWithoutChoice = event.arena.players.size - preferences.getMembersCount()
+            val preferences = TeamManager.getArena(event.getArena())
+            val playersWithoutChoice = event.getArena().getPlayers()!!.size - preferences.getMembersCount()
             if (playersWithoutChoice <= 0 && preferences.getTeamsCount() == 1) {
-                event.arena.setStatus(GameState.waiting)
+                event.getArena().setStatus(GameState.waiting)
             }
         }
-        if (event.newState == GameState.playing || event.newState == GameState.restarting) {
-            TeamManager.clearArenaCache(event.arena)
+        if (event.getNewState() == GameState.playing || event.getNewState() == GameState.restarting) {
+            TeamManager.clearArenaCache(event.getArena())
         }
     }
 }

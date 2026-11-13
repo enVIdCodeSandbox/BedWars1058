@@ -7,7 +7,7 @@ import org.bukkit.entity.Player
 class TeamSelector : TeamSelectorAPI {
 
     override fun getSelectedTeam(player: Player): ITeam? {
-        val arena = BedWars.getAPI().arenaUtil.getArenaByPlayer(player) ?: return null
+        val arena = BedWars.getAPI().getArenaUtil().getArenaByPlayer(player) ?: return null
         return arena.getTeam(player)
     }
 

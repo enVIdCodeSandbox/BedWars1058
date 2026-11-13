@@ -59,7 +59,7 @@ object GameRuleCompat {
         try {
             return setModern(world, legacyName, value)
         } catch (t: Throwable) {
-            warnOnce(legacyName, t.javaClass.getSimpleName() + ": " + t.getMessage())
+            warnOnce(legacyName, t.javaClass.getSimpleName() + ": " + t.message)
             return false
         }
     }
@@ -68,7 +68,7 @@ object GameRuleCompat {
     @JvmStatic
     private fun setModern(world: World, legacyName: String, value: String): Boolean {
         val ruleClass = Class.forName("org.bukkit.GameRule")
-        val lower = legacyName.toLowerCase(Locale.ROOT)
+        val lower = legacyName.lowercase(Locale.ROOT)
         var modern: String? = ALIASES.get(lower)
         if (modern == null) {
             modern = snake(legacyName)

@@ -48,12 +48,12 @@ open class SpongeListener : Listener {
         @JvmField var task: BukkitTask? = null
 
         fun start() {
-            task = Bukkit.getScheduler().runTaskTimer(BedWars.plugin, this, 0L, PERIOD)
+            task = Bukkit.getScheduler().runTaskTimer(BedWars.plugin, this, 0L, PERIOD.toLong())
         }
 
         fun cancel() {
             if (task != null) {
-                task.cancel()
+                task!!.cancel()
             }
         }
 
@@ -124,13 +124,13 @@ open class SpongeListener : Listener {
     companion object {
         @JvmStatic
         private fun isSponge(b: Block): Boolean {
-            val n = b.getType().name()
+            val n = b.getType().name
             return n == "SPONGE" || n == "WET_SPONGE"
         }
 
         @JvmStatic
         private fun isSponge(m: Material): Boolean {
-            return m.name() == "SPONGE" || m.name() == "WET_SPONGE"
+            return m.name == "SPONGE" || m.name == "WET_SPONGE"
         }
         /** Sponges that are counting down, by block position. */
         private val ACTIVE: MutableMap<String, Countdown> = HashMap()
@@ -172,7 +172,7 @@ open class SpongeListener : Listener {
                 val at = center.clone().add((Math.random() - 0.5) * 1.2, (Math.random() - 0.5) * 1.2, (Math.random() - 0.5) * 1.2)
                 if (spawnParticle != null) {
                     try {
-                        spawnParticle.invoke(w, flame, at, 1, 0.0, 0.0, 0.0, 0.0)
+                        spawnParticle!!.invoke(w, flame, at, 1, 0.0, 0.0, 0.0, 0.0)
                         continue
                     } catch (ignored: Throwable) {
                         spawnParticle = null

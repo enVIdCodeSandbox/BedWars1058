@@ -48,7 +48,7 @@ open class WorldEditGuard : Listener {
             return
         }
         val msg = e.getMessage().trim()
-        val lower = msg.toLowerCase(Locale.ROOT)
+        val lower = msg.lowercase(Locale.ROOT)
         var label: String = if (lower.startsWith("/")) lower.substring(1) else lower
         val space: Int = label.indexOf(' ')
         if (space >= 0) {
@@ -93,9 +93,9 @@ open class WorldEditGuard : Listener {
                 // WorldEdit not (fully) there: use the defaults
             }
             if (id != null) {
-                var name = id.toLowerCase(Locale.ROOT)
+                var name = id.lowercase(Locale.ROOT)
                 if (name.startsWith("minecraft:")) {
-                    name = name.substring("minecraft:".length())
+                    name = name.substring("minecraft:".length)
                 }
                 val m: Material? = Material.matchMaterial(name)
                 if (m != null) {

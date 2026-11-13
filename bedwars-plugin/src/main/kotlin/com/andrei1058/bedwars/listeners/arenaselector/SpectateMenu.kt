@@ -120,7 +120,7 @@ object SpectateMenu {
             return false
         }
         // a single game needs no menu
-        if (games.size() == 1 && arenaName != null) {
+        if (games.size == 1 && arenaName != null) {
             if (spectate(p, games.get(0))) {
                 Sounds.playSound("spectate-allowed", p)
             } else {
@@ -129,16 +129,16 @@ object SpectateMenu {
             }
             return true
         }
-        val size: Int = Math.min(54, Math.max(9, ((games.size() + 8) / 9) * 9))
-        val inv = Bukkit.createInventory(Holder(arenaName, group), size, Language.getMsg(p, MSG_TITLE))
+        val size: Int = Math.min(54, Math.max(9, ((games.size + 8) / 9) * 9))
+        val inv = Bukkit.createInventory(Holder(arenaName!!, group!!), size, Language.getMsg(p, MSG_TITLE))
         val material = BedWars.config.getString(ConfigPath.GENERAL_CONFIGURATION_ARENA_SELECTOR_STATUS_MATERIAL.replace("%path%", "playing"))
         val data: Short = BedWars.config.getInt(ConfigPath.GENERAL_CONFIGURATION_ARENA_SELECTOR_STATUS_DATA.replace("%path%", "playing")).toShort()
         // number games per arena so players can tell them apart
         val counters: MutableMap<String, Int> = java.util.HashMap()
         var slot: Int = 0
-        while (slot < games.size() && slot < size) {
+        while (slot < games.size && slot < size) {
             val g = games.get(slot)
-            val number: Int = counters.merge(g.getArenaName(), 1, Int::sum)
+            val number: Int = counters.merge(g.getArenaName(), 1, Int::plus)!!
             var item = BedWars.nms.createItemStack(material, 1, data)
             val im = item.getItemMeta()
             im.setDisplayName(fill(Language.getMsg(p, MSG_ITEM_NAME), g, number))
@@ -155,7 +155,7 @@ object SpectateMenu {
             if (!listsPlayers) {
                 // language files saved by older versions have no {players} line: put the list before the last paragraph
                 val at: Int = lore.lastIndexOf("")
-                lore.addAll(if (at < 0) lore.size() else at, playerLines(g))
+                lore.addAll(if (at < 0) lore.size else at, playerLines(g))
             }
             im.setLore(lore)
             item.setItemMeta(im)
@@ -225,8 +225,8 @@ object SpectateMenu {
             lines.add(" §8▪ " + (if (team == null) "§f" else team.getColor().chat().toString()) + pl.getName())
             shown++
         }
-        if (players.size() > shown) {
-            lines.add(" §8▪ §7+" + (players.size() - shown) + " more")
+        if (players.size > shown) {
+            lines.add(" §8▪ §7+" + (players.size - shown) + " more")
         }
         if (players.isEmpty()) {
             lines.add(" §8▪ §7nobody")
@@ -237,12 +237,12 @@ object SpectateMenu {
     @JvmStatic
     private fun fill(s: String, g: IArena, number: Int): String {
         var alive: Int = 0
-        for (t in g.getTeams()) {
-            if (!t.getMembers().isEmpty()) {
+        for (t in g.getTeams()!!) {
+            if (!t.getMembers()!!.isEmpty()) {
                 alive++
             }
         }
-        return s.replace("{arena}", g.getDisplayName()).replace("{map_name}", g.getArenaName()).replace("{number}", number.toString()).replace("{world}", g.getWorldName()).replace("{on}", g.getPlayers().size().toString()).replace("{max}", g.getMaxPlayers().toString()).replace("{teams}", alive.toString()).replace("{time}", elapsed(g.getStartTime()))
+        return s.replace("{arena}", g.getDisplayName()).replace("{map_name}", g.getArenaName()).replace("{number}", number.toString()).replace("{world}", g.getWorldName()!!).replace("{on}", g.getPlayers()!!.size.toString()).replace("{max}", g.getMaxPlayers().toString()).replace("{teams}", alive.toString()).replace("{time}", elapsed(g.getStartTime()))
     }
 
     @JvmStatic
