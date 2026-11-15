@@ -57,7 +57,7 @@ open class PAPISupport : PlaceholderExpansion() {
 
     override fun onPlaceholderRequest(player: Player?, s: String): String? {
         if (s.startsWith("arena_status_")) {
-            var a: IArena? = Arena.getArenaByName(s.replace("arena_status_", ""))
+            val a: IArena? = Arena.getArenaByName(s.replace("arena_status_", ""))
             if (a == null) {
                 return if (player == null) Language.getDefaultLanguage().m(Messages.ARENA_STATUS_RESTARTING_NAME) else Language.getMsg(player, Messages.ARENA_STATUS_RESTARTING_NAME)
             }
@@ -66,20 +66,21 @@ open class PAPISupport : PlaceholderExpansion() {
         if (s.startsWith("arena_count_")) {
             var players: Int = 0
             val arenas = s.replace("arena_count_", "").split("\\+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            var a: IArena?
             for (arena in arenas) {
-                a = Arena.getArenaByName(arena)
-                if (a != null) {
+                for (a in Arena.getArenasByName(arena)) {
                     players += a.getPlayers()!!.size
                 }
             }
             return players.toString()
         }
+        if (s.startsWith("arena_instances_")) {
+            return Arena.getArenasByName(s.replace("arena_instances_", "")).size().toString()
+        }
         if (s.startsWith("group_count_")) {
             return Arena.getPlayers(s.replace("group_count_", "")).toString()
         }
         if (s.startsWith("arena_group_")) {
-            var a: String? = s.replace("arena_group_", "")
+            val a: String? = s.replace("arena_group_", "")
             val arena: IArena? = Arena.getArenaByName(a.unchecked())
             if (arena != null) {
                 return arena.getGroup()
@@ -141,7 +142,7 @@ open class PAPISupport : PlaceholderExpansion() {
         }
         // other placeholders
         var response = ""
-        var a: IArena? = Arena.getArenaByPlayer(player)
+        val a: IArena? = Arena.getArenaByPlayer(player)
         when (s) {
             "current_online" -> {
                 response = Arena.getArenaByPlayer().size.toString()
