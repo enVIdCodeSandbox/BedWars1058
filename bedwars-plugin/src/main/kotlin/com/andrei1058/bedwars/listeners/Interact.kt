@@ -189,7 +189,11 @@ open class Interact : Listener {
             if (b.getState() is Sign) {
                 for (a1 in Arena.getArenas()) {
                     if (a1.getSigns()!!.contains(b)) {
-                        if (a1.addPlayer(p, false)) {
+                        var target: IArena? = Arena.getArenaByName(a1.getArenaName())
+                        if (target == null) {
+                            target = a1
+                        }
+                        if (target.addPlayer(p, false)) {
                             Sounds.playSound("join-allowed", p)
                         } else {
                             Sounds.playSound("join-denied", p)
