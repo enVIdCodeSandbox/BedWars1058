@@ -21,7 +21,6 @@
 package com.andrei1058.bedwars.arena
 
 import com.andrei1058.bedwars.BedWars
-import com.andrei1058.bedwars.BedWars.Companion.arenaManager
 import com.andrei1058.bedwars.BedWars.Companion.autoscale
 import com.andrei1058.bedwars.BedWars.Companion.config
 import com.andrei1058.bedwars.BedWars.Companion.debug
@@ -184,7 +183,7 @@ open class Arena : IArena {
      * @param p    - This will send messages to the player if something went wrong while loading the arena. Can be NULL.
      */
     constructor(name: String, p: Player?) {
-        if (!autoscale) {
+        if (!Instances.enabled()) {
             for (mm in enableQueue) {
                 if (mm.getArenaName().equals(name, ignoreCase = true)) {
                     plugin.getLogger().severe("Tried to load arena " + name + " but it is already in the enable queue.")
@@ -203,11 +202,7 @@ open class Arena : IArena {
             }
         }
         this.arenaName = name
-        if (autoscale) {
-            this.worldName = BedWars.arenaManager.generateGameID()
-        } else {
-            this.worldName = arenaName
-        }
+        this.worldName = Instances.pickWorldName(arenaName)
         cm = ArenaConfig(BedWars.plugin, name, plugin.getDataFolder().getPath() + "/Arenas")
         yml = cm!!.getYml()
         if (yml!!.get("Team") == null) {
@@ -299,10 +294,11 @@ open class Arena : IArena {
      * Use this method when the world was loaded successfully.
      */
     override fun init(world: World) {
-        if (!autoscale) {
-            if (getArenaByName(arenaName) != null) {
-                return
-            }
+        if (arenas.contains(this)) {
+            return
+        }
+        if (!Instances.enabled() && getArenaByName(arenaName) != null) {
+            return
         }
         removeFromEnableQueue(this)
         debug("Initialized arena " + getArenaName() + " with map " + world.getName())
@@ -350,7 +346,7 @@ open class Arena : IArena {
             }
         }
         arenas.add(this)
-        arenaByName.put(getArenaName(), this)
+        arenaByName.computeIfAbsent(getArenaName(), { k -> LinkedList() }).add(this)
         arenaByIdentifier.put(worldName.unchecked(), this)
         world.getWorldBorder().setCenter(cm!!.getArenaLoc("waiting.Loc"))
         world.getWorldBorder().setSize(yml!!.getInt("worldBorder").toDouble())
@@ -1236,7 +1232,7 @@ open class Arena : IArena {
         return group
     }
 
-    override fun getArenaName(): String {
+    override fun getArenaName(): String? {
         return arenaName
     }
 
@@ -1479,6 +1475,13 @@ open class Arena : IArena {
      */
     @Synchronized
     override fun refreshSigns() {
+        if (signs != null) {
+            val shown: IArena? = getArenaByName(arenaName)
+            if (shown != null && shown !== this) {
+                shown.refreshSigns()
+                return
+            }
+        }
         for (b in getSigns()!!) {
             if (b == null) {
                 continue
@@ -2037,7 +2040,7 @@ open class Arena : IArena {
                 despawnable.destroy()
             }
         }
-        arenaByName.remove(arenaName)
+        unregisterInstance(this)
         arenaByPlayer.entries.removeIf({ entry -> entry.value === this })
         players = null
         spectators = null
@@ -2296,7 +2299,7 @@ open class Arena : IArena {
     }
 
     companion object {
-        private val arenaByName: HashMap<String, IArena> = HashMap()
+        private val arenaByName: HashMap<String, LinkedList<IArena>> = HashMap()
         private val arenaByPlayer: HashMap<Player, IArena> = HashMap()
         private val arenaByIdentifier: HashMap<String, IArena> = HashMap()
         private val arenas: LinkedList<IArena> = LinkedList()
@@ -2317,7 +2320,18 @@ open class Arena : IArena {
          */
         @JvmStatic
         fun getArenaByName(arenaName: String): IArena {
-            return arenaByName.get(arenaName).unchecked()
+            return Instances.best(getArenasByName(arenaName)).unchecked()
+        }
+
+        /**
+         * Get every running instance of an arena (oldest first).
+         *
+         * @param arenaName arena name
+         */
+        @JvmStatic
+        fun getArenasByName(arenaName: String): MutableList<IArena> {
+            val l: LinkedList<IArena>? = arenaByName.get(arenaName)
+            return if (l == null) ArrayList() else ArrayList(l)
         }
 
         /**
@@ -2358,12 +2372,39 @@ open class Arena : IArena {
 
         @JvmStatic
         fun setArenaByName(arena: IArena) {
-            arenaByName.put(arena.getArenaName(), arena)
+            val l = arenaByName.computeIfAbsent(arena.getArenaName(), { k -> LinkedList() })
+            if (!l.contains(arena)) {
+                l.add(arena)
+            }
+        }
+
+        /**
+         * Removes the inactive instances registered under the given arena name (all of them if every one is active).
+         */
+        @JvmStatic
+        fun removeArenaByName(arena: String) {
+            val key = arena.replace("_clone", "")
+            val l: LinkedList<IArena>? = arenaByName.get(key)
+            if (l == null) {
+                return
+            }
+            // when every entry is active nothing is left to tell them apart, so the whole name is removed
+            val removed: Boolean = l.removeIf({ x -> !arenas.contains(x) })
+            if (!removed || l.isEmpty()) {
+                arenaByName.remove(key)
+            }
         }
 
         @JvmStatic
-        fun removeArenaByName(arena: String) {
-            arenaByName.remove(arena.replace("_clone", ""))
+        private fun unregisterInstance(arena: Arena) {
+            val l: LinkedList<IArena>? = arenaByName.get(arena.getArenaName())
+            if (l == null) {
+                return
+            }
+            l.remove(arena)
+            if (l.isEmpty()) {
+                arenaByName.remove(arena.getArenaName())
+            }
         }
 
         @JvmStatic
@@ -2589,13 +2630,10 @@ open class Arena : IArena {
             }
         }
 
-        // used for auto scale conditions
+        // used for auto scale / multi instance conditions
         @JvmStatic
         fun canAutoScale(arenaName: String): Boolean {
-            if (!autoscale) {
-                return true
-            }
-            if (Arena.getArenas().isEmpty()) {
+            if (!Instances.enabled()) {
                 return true
             }
             for (ar in Arena.getEnableQueue()) {
@@ -2603,25 +2641,19 @@ open class Arena : IArena {
                     return false
                 }
             }
-            if (Arena.getGamesBeforeRestart() != -1 && Arena.getArenas().size >= Arena.getGamesBeforeRestart()) {
+            if (autoscale && Arena.getGamesBeforeRestart() != -1 && Arena.getArenas().size >= Arena.getGamesBeforeRestart()) {
                 return false
             }
             var activeClones: Int = 0
-            for (ar in Arena.getArenas()) {
-                if (ar.getArenaName().equals(arenaName, ignoreCase = true)) {
-                    // clone this arena only if there aren't available arena of the same kind
-                    val status = ar.getStatus()
-                    if (status == GameState.waiting || status == GameState.starting) {
-                        return false
-                    }
+            for (ar in Arena.getArenasByName(arenaName)) {
+                // clone this arena only if there aren't available arena of the same kind
+                if (Instances.isJoinable(ar)) {
+                    return false
                 }
-                // count active clones
-                if (ar.getArenaName() == arenaName) {
-                    activeClones++
-                }
+                activeClones++
             }
-            // check amount of active clones
-            return config.getInt(ConfigPath.GENERAL_CONFIGURATION_AUTO_SCALE_LIMIT) > activeClones
+            // check amount of active instances
+            return Instances.limit() > activeClones
         }
     }
 }
