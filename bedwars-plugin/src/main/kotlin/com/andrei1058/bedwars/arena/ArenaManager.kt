@@ -20,24 +20,28 @@
 
 package com.andrei1058.bedwars.arena
 
+import java.io.File
 import java.text.SimpleDateFormat
+import org.bukkit.Bukkit
 
 open class ArenaManager {
     private var gid: Int = 0
-    private var day: String = ""
-    private var month: String = ""
+    private var stamp: String = ""
 
+    /**
+     * Generates a world name that is unique for today, not loaded and not present on disk.
+     */
+    @Synchronized
     open fun generateGameID(): String {
-        val y = SimpleDateFormat("yy")
-        val m = SimpleDateFormat("MM")
-        val d = SimpleDateFormat("dd")
-        val m2 = m.format(System.currentTimeMillis())
-        val d2 = d.format(System.currentTimeMillis())
-        if (!(m2 == this.month || d2.equals(this.day, ignoreCase = true))) {
-            this.month = m2
-            this.day = d2
+        val now = SimpleDateFormat("'y'yy'm'MM'd'dd").format(System.currentTimeMillis())
+        if (now != this.stamp) {
+            this.stamp = now
             this.gid = 0
         }
-        return "bw_temp_y" + y.format(System.currentTimeMillis()) + "m" + this.month + "d" + this.day + "g" + gid++
+        var id: String
+        do {
+            id = "bw_temp_" + this.stamp + "g" + gid++
+        } while (Bukkit.getWorld(id) != null || File(Bukkit.getWorldContainer(), id).exists() || Arena.getArenaByIdentifier(id) != null)
+        return id
     }
 }
