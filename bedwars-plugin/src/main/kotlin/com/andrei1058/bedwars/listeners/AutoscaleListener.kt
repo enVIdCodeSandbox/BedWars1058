@@ -20,19 +20,27 @@
 
 package com.andrei1058.bedwars.listeners
 
+import com.andrei1058.bedwars.BedWars
 import com.andrei1058.bedwars.api.arena.GameState
 import com.andrei1058.bedwars.api.events.gameplay.GameStateChangeEvent
 import com.andrei1058.bedwars.arena.Arena
+import com.andrei1058.bedwars.arena.Instances
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 
 open class AutoscaleListener : Listener {
     @EventHandler
     open fun onPlaying(e: GameStateChangeEvent) {
-        if (e.getNewState() == GameState.playing && Arena.canAutoScale(e.getArena().getArenaName())) {
-            if (Arena.getGamesBeforeRestart() > 1) {
-                Arena(e.getArena().getArenaName(), null)
-            }
+        if (e.getNewState() != GameState.playing) {
+            return
+        }
+        if (!Instances.enabled() || !Arena.canAutoScale(e.getArena().getArenaName())) {
+            return
+        }
+        val games: Int = Arena.getGamesBeforeRestart()
+        // outside of bungee auto-scale the restart counter is not used
+        if (!BedWars.autoscale || games == -1 || games > 1) {
+            Arena(e.getArena().getArenaName(), null)
         }
     }
 }
