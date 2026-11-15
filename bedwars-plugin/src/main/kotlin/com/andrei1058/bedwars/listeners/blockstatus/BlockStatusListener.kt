@@ -55,8 +55,16 @@ open class BlockStatusListener : Listener {
          */
         @JvmStatic
         fun updateBlock(a: Arena?) {
+            var a = a
             if (a == null) {
                 return
+            }
+            if (a.getSigns() == null) {
+                return
+            }
+            val shown: Arena? = Arena.getArenaByName(a.getArenaName()) as Arena?
+            if (shown != null) {
+                a = shown
             }
             for (s in a.getSigns()!!) {
                 if (s.getState() !is Sign) {
