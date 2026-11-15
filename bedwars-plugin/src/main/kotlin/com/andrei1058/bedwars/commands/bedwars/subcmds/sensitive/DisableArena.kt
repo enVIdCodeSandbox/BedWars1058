@@ -53,24 +53,30 @@ open class DisableArena(parent: ParentCommand, name: String) : SubCommand(parent
             p.sendMessage("§c▪ §7" + args[0] + " doesn't exist!")
             return true
         }
-        val a: IArena? = Arena.getArenaByName(args[0])
-        if (a == null) {
+        val instances = Arena.getArenasByName(args[0])
+        if (instances.isEmpty()) {
             p.sendMessage("§c▪ §7This arena is disabled yet!")
             return true
         }
-        if (a.getStatus() == GameState.playing) {
-            p.sendMessage("§6 ▪ §7There is a game running on this Arena, please disable after the game!")
-            return true
+        for (a in instances) {
+            if (a.getStatus() == GameState.playing) {
+                p.sendMessage("§6 ▪ §7There is a game running on this Arena, please disable after the game!")
+                return true
+            }
         }
         p.sendMessage("§6 ▪ §7Disabling arena...")
-        a.disable()
+        for (a in instances) {
+            a.disable()
+        }
         return true
     }
 
     override fun getTabComplete(): MutableList<String>? {
         val tab: MutableList<String> = ArrayList()
         for (a in Arena.getArenas()) {
-            tab.add(a.getArenaName())
+            if (!tab.contains(a.getArenaName())) {
+                tab.add(a.getArenaName())
+            }
         }
         return tab
     }
