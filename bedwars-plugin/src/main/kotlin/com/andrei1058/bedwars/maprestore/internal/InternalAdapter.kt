@@ -55,12 +55,21 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
             Bukkit.getScheduler().runTaskAsynchronously(plugin, Runnable {
                 val bf = File(backupFolder, a.getArenaName() + ".zip")
                 val af = File(Bukkit.getWorldContainer(), a.getArenaName())
-                if (bf.exists()) {
-                    FileUtil.delete(af)
+                // an extra game of an arena runs in its own copy of the map
+                val instance: Boolean = a.getWorldName() != a.getArenaName()
+                var hadBackup: Boolean
+                synchronized(ZIP_LOCK) {
+                    hadBackup = bf.exists()
+                    if (!hadBackup) {
+                        WorldZipper(a.getArenaName(), true)
+                    }
                 }
-                if (!bf.exists()) {
-                    WorldZipper(a.getArenaName(), true)
-                } else {
+                if (bf.exists() && (hadBackup || instance)) {
+                    if (instance) {
+                        FileUtil.delete(File(Bukkit.getWorldContainer(), a.getWorldName()))
+                    } else {
+                        FileUtil.delete(af)
+                    }
                     try {
                         ZipFileUtil.unzipFileIntoDirectory(bf, File(Bukkit.getWorldContainer(), a.getWorldName()))
                     } catch (e: IOException) {
@@ -102,7 +111,10 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                 }
             } else {
                 Bukkit.unloadWorld(a.getWorldName(), false)
-                Bukkit.getScheduler().runTaskLater(plugin, Runnable { Arena(a.getArenaName(), null) }, 80L)
+                // with multiple instances another game of this arena may already be waiting for players
+                if (Arena.canAutoScale(a.getArenaName())) {
+                    Bukkit.getScheduler().runTaskLater(plugin, Runnable { Arena(a.getArenaName(), null) }, 80L)
+                }
             }
             if (a.getWorldName() != a.getArenaName()) {
                 deleteWorld(a.getWorldName().unchecked())
@@ -113,9 +125,20 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
     override fun onDisable(a: IArena) {
         if (BedWars.isShuttingDown()) {
             Bukkit.unloadWorld(a.getWorldName(), false)
+            if (a.getWorldName() != a.getArenaName()) {
+                try {
+                    FileUtils.deleteDirectory(File(Bukkit.getWorldContainer(), a.getWorldName()))
+                } catch (ignored: IOException) {
+                }
+            }
             return
         }
-        Bukkit.getScheduler().runTask(getOwner(), Runnable { Bukkit.unloadWorld(a.getWorldName(), false) })
+        Bukkit.getScheduler().runTask(getOwner(), Runnable {
+            Bukkit.unloadWorld(a.getWorldName(), false)
+            if (a.getWorldName() != a.getArenaName()) {
+                deleteWorld(a.getWorldName())
+            }
+        })
     }
 
     override fun onSetupSessionStart(s: ISetupSession) {
@@ -133,7 +156,7 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
             val wc = WorldCreator(s.getWorldName())
             wc.generator(VoidChunkGenerator())
             wc.generateStructures(false)
-            Bukkit.getScheduler().runTask(getOwner(), Runnable lambda7@{
+            Bukkit.getScheduler().runTask(getOwner(), Runnable lambda8@{
                 try {
                     val level = File(Bukkit.getWorldContainer(), s.getWorldName() + "/region")
                     if (level.exists()) {
@@ -151,12 +174,12 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
                             ex.printStackTrace()
                             s.close()
                         }
-                        return@lambda7
+                        return@lambda8
                     }
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                     s.close()
-                    return@lambda7
+                    return@lambda8
                 }
                 Bukkit.getScheduler().runTaskLater(plugin, s::teleportPlayer, 20L)
             })
@@ -287,6 +310,7 @@ open class InternalAdapter(plugin: Plugin) : RestoreAdapter(plugin) {
     }
 
     companion object {
+        private val ZIP_LOCK: Any = Any()
         @JvmField var backupFolder: File = File(BedWars.plugin.getDataFolder().toString() + "/Cache")
     }
 }
