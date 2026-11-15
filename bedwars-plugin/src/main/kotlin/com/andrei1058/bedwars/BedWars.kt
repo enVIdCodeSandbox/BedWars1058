@@ -256,13 +256,13 @@ open class BedWars : JavaPlugin() {
                 //registerEvents(new ArenaListeners());
                 ArenaSocket.lobbies.addAll(BedWars.config.getList(ConfigPath.GENERAL_CONFIGURATION_BUNGEE_OPTION_LOBBY_SERVERS))
                 SendTask()
-                registerEvents(AutoscaleListener(), PrePartyListener(), JoinListenerBungee())
+                registerEvents(AutoscaleListener(), PrePartyListener(), JoinListenerBungee(), com.andrei1058.bedwars.listeners.arenaselector.SpectateMenuListener())
                 Bukkit.getScheduler().runTaskTimerAsynchronously(this, LoadedUsersCleaner(), 60L, 60L)
             } else {
                 registerEvents(ServerPingListener(), JoinListenerBungeeLegacy())
             }
         } else if (getServerType() == ServerType.MULTIARENA || getServerType() == ServerType.SHARED) {
-            registerEvents(ArenaSelectorListener(), BlockStatusListener())
+            registerEvents(ArenaSelectorListener(), BlockStatusListener(), AutoscaleListener(), com.andrei1058.bedwars.listeners.arenaselector.SpectateMenuListener())
             if (getServerType() == ServerType.MULTIARENA) {
                 registerEvents(JoinListenerMultiArena())
             } else {

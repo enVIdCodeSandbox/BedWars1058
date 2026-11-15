@@ -161,6 +161,7 @@ open class MainCommand(name: String) : BukkitCommand(name), ParentCommand {
         setAliases(Arrays.asList("bedwars", "bedwars1058"))
         instance = this
         CmdJoin(this, "join")
+        com.andrei1058.bedwars.commands.bedwars.subcmds.regular.CmdSpectate(this, "spectate")
         CmdLeave(this, "leave")
         CmdLang(this, "lang")
         CmdTeleporter(this, "teleporter")
