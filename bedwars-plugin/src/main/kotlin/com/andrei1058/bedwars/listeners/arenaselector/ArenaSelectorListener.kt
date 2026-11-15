@@ -62,8 +62,12 @@ open class ArenaSelectorListener : Listener {
         if (!data.contains(ARENA_SELECTOR_GUI_IDENTIFIER)) {
             return
         }
-        val arenaName = data.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
-        val arena: IArena? = Arena.getArenaByName(arenaName)
+        // the item points to one specific running game (its world), older items used the arena name
+        val key = data.split("=".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1]
+        var arena: IArena? = Arena.getArenaByIdentifier(key)
+        if (arena == null) {
+            arena = Arena.getArenaByName(key)
+        }
         if (arena == null) {
             return
         }
